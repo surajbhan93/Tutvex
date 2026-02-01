@@ -1,0 +1,52 @@
+/* src/styles/subjects.module.css */
+
+/* .container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+} */
+
+.sidebar {
+  width: 260px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.filterSection h4 {
+  margin-bottom: 8px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: #f8f9ff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* 🔥 Mobile */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+}
