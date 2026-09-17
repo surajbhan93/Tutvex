@@ -1,0 +1,24 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
+function getEnv(key: string, defaultValue?: string): string {
+  const value = process.env[key] || defaultValue;
+  if (!value) {
+    throw new Error(`Missing environment variable: ${key}`);
+  }
+  return value;
+}
+
+export const config = {
+  PORT: parseInt(getEnv("PORT", "3001")),
+  MONGO_URI: getEnv("MONGO_URI"),
+  JWT_SECRET: getEnv("JWT_SECRET"),
+  ADMIN_USERNAME: getEnv("ADMIN_USERNAME"),
+  ADMIN_PASSWORD: getEnv("ADMIN_PASSWORD"),
+
+  CLOUDINARY_URL: process.env.CLOUDINARY_URL || "",
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || "",
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || ""
+};
