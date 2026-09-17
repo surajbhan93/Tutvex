@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import leadService from "../services/lead.service";
+import { IStudentLead } from "../models/StudentLead";
 
 export const leadsController = {
   /**

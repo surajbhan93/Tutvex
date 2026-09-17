@@ -56,19 +56,21 @@ Completed comprehensive performance audit and optimization of the Tutvex platfor
 ```json
 {
   "removed": [
-    "three",           // ~500KB - Not used
-    "@types/three",    // Dev dependency
+    "three",           // ~500KB - Not used anywhere
+    "@types/three",    // Dev dependency - Not used
     "chart.js",        // ~200KB - Not used
     "react-chartjs-2", // Not used
-    "recharts",        // ~400KB - Not used
-    "flowbite",        // ~300KB - Not used
-    "flowbite-react"   // Not used
+    "flowbite",        // ~300KB - Not used (CSS only)
+  ],
+  "kept_minimal_use": [
+    "recharts",        // Used in about/sitemap pages only (lazy loaded)
+    "flowbite-react"   // Used in about/how-it-works pages only (lazy loaded)
   ]
 }
 ```
 
 **Updated:**
-- `package.json` - removed 8 dependencies
+- `package.json` - removed 5 fully unused dependencies, kept 2 with minimal usage
 - `next.config.js` - removed from optimizePackageImports
 
 **Action Required:** Run `npm install` to apply changes

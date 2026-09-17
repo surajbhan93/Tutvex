@@ -10,10 +10,10 @@ export default async function subscriptionRoutes(fastify: FastifyInstance) {
   fastify.get("/current", { preHandler: authMiddleware }, subscriptionController.getCurrentSubscription);
   fastify.get("/history", { preHandler: authMiddleware }, subscriptionController.getSubscriptionHistory);
   fastify.post("/activate-free", { preHandler: authMiddleware }, subscriptionController.activateFreePlan);
-  fastify.post("/create-order", { preHandler: authMiddleware }, subscriptionController.createSubscriptionOrder);
-  fastify.post("/verify-payment", { preHandler: authMiddleware }, subscriptionController.verifyAndActivate);
-  fastify.post("/cancel", { preHandler: authMiddleware }, subscriptionController.cancelSubscription);
-  fastify.post("/toggle-auto-renew", { preHandler: authMiddleware }, subscriptionController.toggleAutoRenew);
+  fastify.post("/create-order", { preHandler: authMiddleware }, subscriptionController.createSubscriptionOrder as any);
+  fastify.post("/verify-payment", { preHandler: authMiddleware }, subscriptionController.verifyAndActivate as any);
+  fastify.post("/cancel", { preHandler: authMiddleware }, subscriptionController.cancelSubscription as any);
+  fastify.post("/toggle-auto-renew", { preHandler: authMiddleware }, subscriptionController.toggleAutoRenew as any);
 
   // Admin only
   fastify.post("/seed-plans", subscriptionController.seedDefaultPlans);

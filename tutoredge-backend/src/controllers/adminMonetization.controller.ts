@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import subscriptionService from "../services/subscription.service";
 import walletService from "../services/wallet.service";
 import leadService from "../services/lead.service";
-import SubscriptionPlan from "../models/SubscriptionPlan";
+import SubscriptionPlan, { ISubscriptionPlan } from "../models/SubscriptionPlan";
 import TutorSubscription from "../models/TutorSubscription";
 import LeadCreditWallet from "../models/LeadCreditWallet";
 import StudentLead from "../models/StudentLead";
