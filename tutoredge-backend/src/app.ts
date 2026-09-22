@@ -49,13 +49,29 @@ async function buildApp() {
   // Register Gzip/Brotli Compression for Fast API Responses
   await app.register(compress, { threshold: 512, encodings: ["gzip", "deflate"] });
 
-    // Register CORS
+  // Register CORS
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+    'http://localhost:3000',
+    'https://tutvex.com',
+    'https://www.tutvex.com'
+  ];
+
   await app.register(cors, {
-  origin: "http://localhost:3000", // ❌ "*" mat rakho
-  credentials: true,               // 🔥 VERY IMPORTANT
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-});
+    origin: (origin, cb) => {
+      // Allow requests with no origin (like mobile apps, Postman, etc.)
+      if (!origin) return cb(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        cb(null, true);
+      } else {
+        console.warn(`⚠️  Blocked origin: ${origin}`);
+        cb(new Error('Not allowed by CORS'), false);
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
 
 
   // Swagger setup
@@ -67,7 +83,8 @@ async function buildApp() {
         version: "1.0.0"
       },
       servers: [
-        { url: "http://localhost:3000/api/v1", description: "Development" },
+        { url: "http://localhost:3001/api/v1", description: "Development" },
+        { url: "https://tutvex.com/api/v1", description: "Production" },
       ],
       components: {
         securitySchemes: {
