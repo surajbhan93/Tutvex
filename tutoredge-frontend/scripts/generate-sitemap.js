@@ -34,15 +34,25 @@ import { INTENTS as INDIA_INTENTS } from "../src/components/seoIndia/intents.nod
  * 🔹 BASE URL
  * ================================
  */
-const BASE_URL = "http://localhost:3000";
-// const BASE_URL = "https://yourdomain.com";
+const BASE_URL = "https://tutvex.com";
 
 /**
  * ================================
  * 🔹 UTILS
  * ================================
  */
-const slugify = (text) => text.toLowerCase().replace(/\s+/g, "-");
+const slugify = (text) => {
+  // Handle objects with slug property
+  if (typeof text === 'object' && text !== null && 'slug' in text) {
+    return text.slug;
+  }
+  // Handle strings
+  if (typeof text === 'string') {
+    return text.toLowerCase().replace(/\s+/g, "-");
+  }
+  // Fallback
+  return String(text).toLowerCase().replace(/\s+/g, "-");
+};
 
 /**
  * ================================

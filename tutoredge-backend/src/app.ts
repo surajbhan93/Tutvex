@@ -34,6 +34,17 @@ import analyticsRoutes from "./routes/analytics.routes";
 import webhookRoutes from "./routes/webhook.routes";
 import notificationRoutes from "./routes/notification.routes";
 import adminMonetizationRoutes from "./routes/adminMonetization.routes";
+import { initializeFirebaseAdmin } from "./config/firebaseAdmin";
+
+// Initialize Firebase Admin SDK for FCM Push Notifications
+try {
+  initializeFirebaseAdmin();
+  console.log("✓ Firebase Admin SDK initialized for push notifications");
+} catch (error) {
+  console.error("✗ Failed to initialize Firebase Admin SDK:", error);
+  console.warn("⚠️  Push notifications will not work without Firebase Admin SDK");
+}
+
 async function buildApp() {
   // Register Gzip/Brotli Compression for Fast API Responses
   await app.register(compress, { threshold: 512, encodings: ["gzip", "deflate"] });

@@ -19,15 +19,26 @@ export const adminMonetizationController = {
         totalPlans,
         totalLeads,
         walletStats,
+        creditWalletStats,
       ] = await Promise.all([
         TutorSubscription.countDocuments(),
         TutorSubscription.countDocuments({ status: "active" }),
         SubscriptionPlan.countDocuments({ isActive: true }),
         StudentLead.countDocuments(),
         walletService.getAdminWalletStats(),
+        LeadCreditWallet.aggregate([
+          {
+            $group: {
+              _id: null,
+              totalAvailable: { $sum: "$availableCredits" },
+              totalUsed: { $sum: "$usedCredits" },
+              totalPurchased: { $sum: "$totalPurchased" },
+            },
+          },
+        ]),
       ]);
 
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         data: {
           subscriptions: {
@@ -37,10 +48,15 @@ export const adminMonetizationController = {
           plans: totalPlans,
           leads: totalLeads,
           walletStats,
+          creditStats: creditWalletStats[0] || {
+            totalAvailable: 0,
+            totalUsed: 0,
+            totalPurchased: 0,
+          },
         },
       });
     } catch (error: any) {
-      reply.status(500).send({ success: false, message: error.message });
+      return reply.status(500).send({ success: false, message: error.message });
     }
   },
 
@@ -50,9 +66,9 @@ export const adminMonetizationController = {
   async getAllPlans(req: FastifyRequest, reply: FastifyReply) {
     try {
       const plans = await SubscriptionPlan.find().sort({ displayOrder: 1 });
-      reply.status(200).send({ success: true, data: plans });
+      return reply.status(200).send({ success: true, data: plans });
     } catch (error: any) {
-      reply.status(500).send({ success: false, message: error.message });
+      return reply.status(500).send({ success: false, message: error.message });
     }
   },
 
@@ -65,13 +81,13 @@ export const adminMonetizationController = {
   ) {
     try {
       const plan = await subscriptionService.upsertPlan(req.body as Partial<ISubscriptionPlan>);
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         data: plan,
         message: "Plan saved successfully",
       });
     } catch (error: any) {
-      reply.status(400).send({ success: false, message: error.message });
+      return reply.status(400).send({ success: false, message: error.message });
     }
   },
 
@@ -85,13 +101,13 @@ export const adminMonetizationController = {
     try {
       const { id } = req.params;
       const plan = await subscriptionService.deactivatePlan(id);
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         data: plan,
         message: "Plan deactivated",
       });
     } catch (error: any) {
-      reply.status(400).send({ success: false, message: error.message });
+      return reply.status(400).send({ success: false, message: error.message });
     }
   },
 
@@ -108,14 +124,14 @@ export const adminMonetizationController = {
       if (status) query.status = status;
 
       const subscriptions = await TutorSubscription.find(query)
-        .populate("tutorId", "fullName email phone")
+        .populate("tutorId", "fullName email phone location profileImage")
         .populate("planId")
         .sort({ createdAt: -1 })
         .limit(limit ? parseInt(limit) : 100);
 
-      reply.status(200).send({ success: true, data: subscriptions });
+      return reply.status(200).send({ success: true, data: subscriptions });
     } catch (error: any) {
-      reply.status(500).send({ success: false, message: error.message });
+      return reply.status(500).send({ success: false, message: error.message });
     }
   },
 
@@ -132,21 +148,32 @@ export const adminMonetizationController = {
       if (status) filters.status = status;
 
       const leads = await leadService.getAllLeadsAdmin(filters);
-      reply.status(200).send({ success: true, data: leads });
+      return reply.status(200).send({ success: true, data: leads });
     } catch (error: any) {
-      reply.status(500).send({ success: false, message: error.message });
+      return reply.status(500).send({ success: false, message: error.message });
     }
   },
 
   /**
-   * GET /admin/monetization/wallets - Get pending withdrawals
+   * GET /admin/monetization/wallets - Get pending withdrawals & tutor credit wallets list
    */
   async getPendingWithdrawals(req: FastifyRequest, reply: FastifyReply) {
     try {
-      const withdrawals = await walletService.getPendingWithdrawals();
-      reply.status(200).send({ success: true, data: withdrawals });
+      const [withdrawals, creditWallets] = await Promise.all([
+        walletService.getPendingWithdrawals(),
+        LeadCreditWallet.find()
+          .populate("tutorId", "fullName email phone profileImage")
+          .sort({ totalPurchased: -1 })
+          .limit(100),
+      ]);
+
+      return reply.status(200).send({
+        success: true,
+        data: withdrawals,
+        creditWallets,
+      });
     } catch (error: any) {
-      reply.status(500).send({ success: false, message: error.message });
+      return reply.status(500).send({ success: false, message: error.message });
     }
   },
 
@@ -166,13 +193,13 @@ export const adminMonetizationController = {
 
       const transaction = await walletService.approveWithdrawal(id, paymentProof);
 
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         data: transaction,
         message: "Withdrawal approved",
       });
     } catch (error: any) {
-      reply.status(400).send({ success: false, message: error.message });
+      return reply.status(400).send({ success: false, message: error.message });
     }
   },
 
@@ -196,13 +223,13 @@ export const adminMonetizationController = {
 
       const transaction = await walletService.rejectWithdrawal(id, reason);
 
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         data: transaction,
         message: "Withdrawal rejected",
       });
     } catch (error: any) {
-      reply.status(400).send({ success: false, message: error.message });
+      return reply.status(400).send({ success: false, message: error.message });
     }
   },
 
@@ -227,13 +254,13 @@ export const adminMonetizationController = {
       wallet.totalEarned += credits;
       await wallet.save();
 
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         data: wallet,
         message: `${credits} credits added to tutor`,
       });
     } catch (error: any) {
-      reply.status(400).send({ success: false, message: error.message });
+      return reply.status(400).send({ success: false, message: error.message });
     }
   },
 
@@ -251,13 +278,13 @@ export const adminMonetizationController = {
 
       const transaction = await walletService.adminAdjustment(tutorId, amount, reason);
 
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         data: transaction,
         message: "Wallet adjusted successfully",
       });
     } catch (error: any) {
-      reply.status(400).send({ success: false, message: error.message });
+      return reply.status(400).send({ success: false, message: error.message });
     }
   },
 
@@ -267,12 +294,12 @@ export const adminMonetizationController = {
   async seedPlans(req: FastifyRequest, reply: FastifyReply) {
     try {
       await subscriptionService.seedDefaultPlans();
-      reply.status(200).send({
+      return reply.status(200).send({
         success: true,
         message: "Default plans seeded successfully",
       });
     } catch (error: any) {
-      reply.status(500).send({ success: false, message: error.message });
+      return reply.status(500).send({ success: false, message: error.message });
     }
   },
 };

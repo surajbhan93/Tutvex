@@ -84,8 +84,12 @@ export default function CityAutoPage({
         <meta name="description" content={description} />
         <link
           rel="canonical"
-          href={`https://yourdomain.com/${city}/${location}/${intent}`}
+          href={`https://tutvex.com/${city}/${location}/${intent}`}
         />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={`https://tutvex.com/${city}/${location}/${intent}`} />
+        <meta property="og:type" content="website" />
       </Head>
 
       <LocalSchema />
@@ -241,15 +245,35 @@ export const getStaticPaths: GetStaticPaths = async () => {
     });
   });
 
-  return { paths, fallback: "blocking" };
+  console.log(`Generated ${paths.length} static paths for [city]/[location]/st`);
+  
+  return { paths, fallback: false }; // Changed from "blocking" to false
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const city = params?.city?.toString().toLowerCase() || "";
+  const location = params?.location?.toString().toLowerCase() || "";
+
+  // Validate combination
+  const cityData = CITY_CONFIG[city];
+  if (!cityData) {
+    return { notFound: true };
+  }
+
+  const normalizedLocation = location.replace(/-/g, ' ');
+  const locationExists = cityData.locations.some(
+    loc => loc.toLowerCase() === normalizedLocation
+  );
+
+  if (!locationExists) {
+    return { notFound: true };
+  }
+
   return {
     props: {
-      city: params?.city?.toString() || "",
-      location: params?.location?.toString().replace(/-/g, " ") || "",
-      intent: params?.intent?.toString() || "home-tutor",
+      city,
+      location: normalizedLocation,
+      intent: "home-tutor",
     },
     revalidate: 86400,
   };

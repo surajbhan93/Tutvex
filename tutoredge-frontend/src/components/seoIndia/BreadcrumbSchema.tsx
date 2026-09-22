@@ -21,25 +21,25 @@ export default function BreadcrumbSchema({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://yourdomain.com/",
+        item: "https://tutvex.com/",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "India",
-        item: "https://yourdomain.com/india",
+        item: "https://tutvex.com/india",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: cityName,
-        item: `https://yourdomain.com/india/${city}`,
+        item: `https://tutvex.com/india/${city}`,
       },
       {
         "@type": "ListItem",
         position: 4,
         name: location,
-        item: `https://yourdomain.com/india/${city}/${location
+        item: `https://tutvex.com/india/${city}/${location
           .toLowerCase()
           .replace(/\s+/g, "-")}`,
       },
@@ -47,7 +47,7 @@ export default function BreadcrumbSchema({
         "@type": "ListItem",
         position: 5,
         name: intent,
-        item: `https://yourdomain.com/india/${city}/${location
+        item: `https://tutvex.com/india/${city}/${location
           .toLowerCase()
           .replace(/\s+/g, "-")}/${intent
           .toLowerCase()

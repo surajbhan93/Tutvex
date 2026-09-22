@@ -15,6 +15,7 @@ const OurImpact = dynamic(() => import('@/components/landing/OurImpact'));
 const Footer = dynamic(() => import('@/components/landing/Footer'));
 const WhatsappFloat = dynamic(() => import('@/components/common/WhatsappFloat'), { ssr: false });
 const FloatingChatButton = dynamic(() => import("@/components/common/FloatingChatButton"), { ssr: false });
+const ThreeBackground = dynamic(() => import('@/components/ThreeBackground'), { ssr: false });
 // import { title } from 'process';
 const heroData = {
   title:
@@ -46,6 +47,9 @@ const LandingPage = () => {
           GLOBAL GRADIENT WRAPPER
       ====================== */}
       <main className="relative overflow-hidden bg-gradient-page-main">
+        {/* 🎨 3D ANIMATED BACKGROUND */}
+        <ThreeBackground />
+        
         {/* SOFT COLOR BLOBS */}
         <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-indigo-400/30 rounded-full blur-[120px] -z-10" />
         <div className="absolute top-40 -right-40 w-[500px] h-[500px] bg-cyan-400/30 rounded-full blur-[120px] -z-10" />

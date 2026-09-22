@@ -24,6 +24,7 @@ interface PageProps {
   city: string;
   location: string;
   intent: string;
+  notFound?: boolean;
 }
 
 /* ===============================
@@ -39,6 +40,11 @@ const CITY_CONFIG: Record<string, { name: string; locations: string[] }> = {
     locations: KANPUR_LOCATIONS,
   },
 };
+
+/* ===============================
+   VALID INTENTS (flattened from config)
+================================ */
+const VALID_INTENTS = Object.values(INTENTS).flat();
 
 /* ===============================
    CITY TUTOR COUNT
@@ -76,17 +82,43 @@ const getTrend = (count: number) =>
   count >= 50 ? "↑" : count >= 30 ? "→" : "↓";
 
 /* ===============================
+   VALIDATION HELPER
+================================ */
+function isValidCombination(city: string, location: string, intent: string): boolean {
+  const cityData = CITY_CONFIG[city];
+  if (!cityData) return false;
+
+  const normalizedLocation = location.toLowerCase().replace(/-/g, ' ');
+  const locationExists = cityData.locations.some(
+    loc => loc.toLowerCase() === normalizedLocation
+  );
+  
+  if (!locationExists) return false;
+
+  const normalizedIntent = intent.toLowerCase().replace(/-/g, ' ');
+  const intentExists = VALID_INTENTS.some(
+    validIntent => validIntent.toLowerCase() === normalizedIntent
+  );
+
+  return intentExists;
+}
+
+/* ===============================
    PAGE
 ================================ */
 export default function CityAutoPage({
   city,
   location,
   intent,
+  notFound,
 }: PageProps) {
   const cityData = CITY_CONFIG[city];
   const [redirecting, setRedirecting] = useState(false);
 
-  if (!cityData) return null;
+  // Server-side validation already handled via notFound in getStaticProps
+  if (notFound || !cityData) {
+    return null; // This will never render as Next.js shows 404 page
+  }
 
   const intentText = intent.replace(/-/g, " ");
   const formattedIntent = intentText.replace(/\b\w/g, (c) => c.toUpperCase());
@@ -119,8 +151,12 @@ export default function CityAutoPage({
         <meta name="description" content={description} />
         <link
           rel="canonical"
-          href={`https://yourdomain.com/${city}/${location}/${intent}`}
+          href={`https://tutvex.com/${city}/${location.toLowerCase().replace(/\s+/g, '-')}/${intent}`}
         />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={`https://tutvex.com/${city}/${location.toLowerCase().replace(/\s+/g, '-')}/${intent}`} />
+        <meta property="og:type" content="website" />
       </Head>
 
       <LocalSchema />
@@ -308,32 +344,52 @@ export default function CityAutoPage({
 export const getStaticPaths: GetStaticPaths = async () => {
   const paths: any[] = [];
 
+  // Only generate paths for VALID combinations
   Object.entries(CITY_CONFIG).forEach(([city, data]) => {
     data.locations.forEach((location) => {
-      Object.values(INTENTS).forEach((intentGroup) => {
-        intentGroup.forEach((intent) => {
-          paths.push({
-            params: {
-              city,
-              location: location.toLowerCase().replace(/\s+/g, "-"),
-              intent: intent.toLowerCase().replace(/\s+/g, "-"),
-            },
-          });
+      // Flatten all intents
+      const allIntents = Object.values(INTENTS).flat();
+      
+      allIntents.forEach((intent) => {
+        paths.push({
+          params: {
+            city,
+            location: location.toLowerCase().replace(/\s+/g, "-"),
+            intent: intent.toLowerCase().replace(/\s+/g, "-"),
+          },
         });
       });
     });
   });
 
-  return { paths, fallback: "blocking" };
+  console.log(`Generated ${paths.length} static paths for [city]/[location]/[intent]`);
+
+  return { 
+    paths, 
+    fallback: false // Changed from "blocking" to false - invalid URLs will get proper 404
+  };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const city = params?.city?.toString().toLowerCase() || '';
+  const location = params?.location?.toString().toLowerCase() || '';
+  const intent = params?.intent?.toString().toLowerCase() || '';
+
+  // Validate the combination
+  if (!isValidCombination(city, location, intent)) {
+    return {
+      notFound: true, // Returns proper 404 HTTP status
+    };
+  }
+
+  const locationFormatted = location.replace(/-/g, ' ');
+
   return {
     props: {
-      city: params?.city?.toString(),
-      location: params?.location?.toString().replace(/-/g, " "),
-      intent: params?.intent?.toString(),
+      city,
+      location: locationFormatted,
+      intent,
     },
-    revalidate: 86400,
+    revalidate: 86400, // 24 hours
   };
 };

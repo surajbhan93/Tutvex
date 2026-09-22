@@ -79,9 +79,9 @@ async getFeaturedTutors(req: FastifyRequest, reply: FastifyReply) {
       isProfileComplete: true
     })
       .select(
-        "fullName profileImage headline subjects rating yearsOfExperience price priceType totalStudents profileViews location.city location.area"
+        "fullName profileImage headline subjects rating yearsOfExperience price priceType totalStudents profileViews location.city location.area membershipType currentPlanSlug revenueSharePercentage subscriptionPriority"
       )
-      .sort({ rating: -1, profileViews: -1 })
+      .sort({ subscriptionPriority: -1, rating: -1, profileViews: -1 })
       .limit(4)
       .lean();
 

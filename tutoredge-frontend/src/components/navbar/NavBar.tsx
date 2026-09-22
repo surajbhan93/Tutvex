@@ -1,10 +1,11 @@
-import { CircleUserRound, Menu, X, ChevronDown, MapPin, Globe, GraduationCap } from "lucide-react";
+import { CircleUserRound, Menu, X, ChevronDown, MapPin, Globe, GraduationCap, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useRef, useEffect } from "react";
 import DarkToggle from "@/components/ui/DarkToggle";
 import { trackEvent } from "@/components/analytics/trackers";
 import { useAuthStore } from "@/stores/useAuthStore";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const navLinks = [
   {
@@ -410,66 +411,74 @@ const NavBar = () => {
 
           {/* ── Desktop CTA ── */}
           <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+            {/* Find Tutor - Always visible */}
+            <Link href={{ pathname: "/tutors", query: { source: "NAVBAR_CTA", campaign: "FIND_TUTOR", medium: "website" } }}>
+              <button
+                onClick={() => trackEvent("find_tutor_click", { event_category: "NAVBAR", event_label: "Find a Tutor" })}
+                className="h-10 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-4 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              >
+                Find a Tutor
+              </button>
+            </Link>
+
+            {/* Find Students - Always visible */}
+            <Link href={{ pathname: "/find-students", query: { source: "NAVBAR_CTA", campaign: "FIND_STUDENTS", medium: "website" } }}>
+              <button
+                onClick={() => trackEvent("find_students_click", { event_category: "NAVBAR", event_label: "Find Students" })}
+                className="hidden h-10 rounded-xl bg-emerald-50/80 border border-emerald-200/70 px-4 text-sm font-semibold text-emerald-700 hover:bg-emerald-100/90 hover:border-emerald-300 hover:shadow-sm transition-all sm:flex items-center gap-2"
+              >
+                <Users size={16} />
+                Find Students
+              </button>
+            </Link>
+
             {isLoggedIn ? (
-              <div ref={userMenuRef} className="relative">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 hover:shadow-md transition-all"
-                >
-                  <CircleUserRound size={22} />
-                </button>
+              <>
+                {/* Notification Bell - Only show for tutors */}
+                {user?.role === "tutor" && <NotificationBell />}
+                
+                <div ref={userMenuRef} className="relative">
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 hover:shadow-md transition-all"
+                  >
+                    <CircleUserRound size={22} />
+                  </button>
 
-                {/* User Dropdown Menu */}
-                {userMenuOpen && (
-                  <div className="absolute right-0 top-12 w-56 rounded-xl bg-white shadow-xl border border-gray-100 py-2 z-50">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
-                      <p className="mt-1 text-xs font-medium text-blue-600 capitalize">{user?.role}</p>
-                    </div>
-                    
-                    <Link href={getDashboardUrl()}>
+                  {/* User Dropdown Menu */}
+                  {userMenuOpen && (
+                    <div className="absolute right-0 top-12 w-56 rounded-xl bg-white shadow-xl border border-gray-100 py-2 z-50">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                        <p className="text-xs text-gray-500">{user?.email}</p>
+                        <p className="mt-1 text-xs font-medium text-blue-600 capitalize">{user?.role}</p>
+                      </div>
+                      
+                      <Link href={getDashboardUrl()}>
+                        <button
+                          onClick={() => setUserMenuOpen(false)}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          Dashboard
+                        </button>
+                      </Link>
+
                       <button
-                        onClick={() => setUserMenuOpen(false)}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 mt-1"
                       >
-                        Dashboard
+                        Logout
                       </button>
-                    </Link>
-
-                    <button
-                      onClick={handleLogout}
-                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 mt-1"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <>
-                <Link href={{ pathname: "/tutors", query: { source: "NAVBAR_CTA", campaign: "FIND_TUTOR", medium: "website" } }}>
-                  <button
-                    onClick={() => trackEvent("find_tutor_click", { event_category: "NAVBAR", event_label: "Find a Tutor" })}
-                    className="h-10 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-4 text-sm font-semibold text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all"
-                  >
-                    Find a Tutor
-                  </button>
-                </Link>
-
-                <Link href={{ pathname: "/tutor-flow/tutor-registration", query: { role: "tutor", source: "NAVBAR_CTA", campaign: "BECOME_TUTOR", medium: "website" } }}>
-                  <button
-                    onClick={() => trackEvent("become_tutor_click", { event_category: "NAVBAR", event_label: "Become a Tutor" })}
-                    className="hidden h-10 rounded-xl bg-blue-50/80 border border-blue-200/70 px-4 text-sm font-semibold text-blue-700 hover:bg-blue-100/90 hover:border-blue-300 hover:shadow-sm transition-all sm:block"
-                  >
-                    Become a Tutor
-                  </button>
-                </Link>
-
                 <Link href={{ pathname: "/login", query: { source: "NAVBAR_LOGIN", medium: "website" } }}>
                   <button
                     onClick={() => trackEvent("login_click", { event_category: "NAVBAR", event_label: "Login" })}
-                    className="hidden h-10 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 hover:shadow-md transition-all sm:block"
+                    className="h-10 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 hover:shadow-md transition-all"
                   >
                     Login
                   </button>
@@ -592,9 +601,35 @@ const NavBar = () => {
 
             {/* Mobile CTA buttons */}
             <div className="flex flex-col items-center gap-3 px-5 py-5">
+              {/* Find Tutor & Find Students - Always visible */}
+              <Link
+                href={{ pathname: "/tutors", query: { source: "MOBILE_NAV", campaign: "FIND_TUTOR" } }}
+                className="w-full"
+              >
+                <button
+                  onClick={() => trackEvent("find_tutor_click", { event_category: "MOBILE_NAV", event_label: "Find a Tutor" })}
+                  className="w-full h-11 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition-all"
+                >
+                  Find a Tutor
+                </button>
+              </Link>
+
+              <Link
+                href={{ pathname: "/find-students", query: { source: "MOBILE_NAV", campaign: "FIND_STUDENTS" } }}
+                className="w-full"
+              >
+                <button
+                  onClick={() => trackEvent("find_students_click", { event_category: "MOBILE_NAV", event_label: "Find Students" })}
+                  className="w-full h-11 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold shadow hover:bg-emerald-100 transition-all flex items-center justify-center gap-2"
+                >
+                  <Users size={18} />
+                  Find Students
+                </button>
+              </Link>
+
               {isLoggedIn ? (
                 <>
-                  <div className="w-full rounded-xl bg-blue-50 p-4 mb-2">
+                  <div className="w-full rounded-xl bg-blue-50 p-4 mb-2 mt-2">
                     <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
                     <p className="text-xs text-gray-500">{user?.email}</p>
                     <p className="mt-1 text-xs font-medium text-blue-600 capitalize">{user?.role}</p>
@@ -603,7 +638,7 @@ const NavBar = () => {
                   <Link href={getDashboardUrl()} className="w-full">
                     <button
                       onClick={() => setMobileMenuOpen(false)}
-                      className="w-full h-11 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition-all"
+                      className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-semibold shadow hover:bg-blue-700 transition-all"
                     >
                       Go to Dashboard
                     </button>
@@ -621,30 +656,6 @@ const NavBar = () => {
                 </>
               ) : (
                 <>
-                  <Link
-                    href={{ pathname: "/tutors", query: { source: "MOBILE_NAV", campaign: "FIND_TUTOR" } }}
-                    className="w-full"
-                  >
-                    <button
-                      onClick={() => trackEvent("find_tutor_click", { event_category: "MOBILE_NAV", event_label: "Find a Tutor" })}
-                      className="w-full h-11 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition-all"
-                    >
-                      Find a Tutor
-                    </button>
-                  </Link>
-
-                  <Link
-                    href={{ pathname: "/tutor-flow/tutor-registration", query: { role: "tutor", source: "MOBILE_NAV", campaign: "BECOME_TUTOR" } }}
-                    className="w-full"
-                  >
-                    <button
-                      onClick={() => trackEvent("become_tutor_click", { event_category: "MOBILE_NAV", event_label: "Become a Tutor" })}
-                      className="w-full h-11 rounded-xl bg-gray-100 text-gray-800 font-semibold shadow hover:bg-gray-200 transition-all"
-                    >
-                      Become a Tutor
-                    </button>
-                  </Link>
-
                   <Link href="/login" className="w-full">
                     <button
                       onClick={() => trackEvent("login_click", { event_category: "MOBILE_NAV", event_label: "Login" })}

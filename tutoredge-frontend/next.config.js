@@ -50,6 +50,12 @@ module.exports = withBundleAnalyzer({
         pathname: "/uploads/**",
       },
       {
+        protocol: "http",
+        hostname: "localhost",
+        port: "3001",
+        pathname: "/api/v1/uploads/**",
+      },
+      {
         protocol: "https",
         hostname: "images.unsplash.com",
         pathname: "/**",

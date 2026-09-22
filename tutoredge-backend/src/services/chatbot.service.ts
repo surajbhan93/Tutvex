@@ -53,6 +53,7 @@ const SPELLING_MAP: Record<string, string> = {
   kaisee: "kaise",
   bne: "bane",
   bano: "bane",
+  ban: "bane",
   h: "hai",
   hia: "hai",
   haii: "hai",
@@ -62,6 +63,13 @@ const SPELLING_MAP: Record<string, string> = {
   teacherji: "teacher",
   registation: "registration",
   registrtion: "registration",
+  chiye: "chahiye",
+  chaiye: "chahiye",
+  chhaiye: "chahiye",
+  milega: "milega",
+  milegi: "milega",
+  mujhe: "mujhe",
+  muje: "mujhe",
 };
 
 /* ===================== HELPERS ===================== */
@@ -128,10 +136,20 @@ const detectRoleFromText = (text: string): Role | null => {
  * AI-style fallback (safe, rule-based)
  * Future ready for OpenAI / Gemini
  */
-const aiFallbackReply = (lang: "hi" | "en") => {
-  return lang === "hi"
-    ? "🤖 Main fees, tutor registration, selection process, cities, cashback aur contact jaise sawalon me madad kar sakta hoon. Kripya thoda clear likhein."
-    : "🤖 I can help with fees, tutor registration, selection process, cities, cashback, and contact details. Please rephrase your question.";
+const aiFallbackReply = (lang: "hi" | "en", role: Role) => {
+  const commonTopics = lang === "hi"
+    ? "fees, tutor registration, selection process, subjects, cities, demo class, payment"
+    : "fees, tutor registration, selection process, subjects, cities, demo class, payment";
+  
+  const baseMessage = lang === "hi"
+    ? `🤖 Main aapki madad kar sakta hoon:\n\n✅ ${commonTopics}\n\nKripya apna sawal thoda simple likhein.`
+    : `🤖 I can help you with:\n\n✅ ${commonTopics}\n\nPlease rephrase your question simply.`;
+  
+  const contactInfo = lang === "hi"
+    ? "\n\nYa fir support se baat karein: 9305275932"
+    : "\n\nOr contact support: 9305275932";
+  
+  return baseMessage + contactInfo;
 };
 
 /* ===================== MAIN SERVICE ===================== */
@@ -162,6 +180,20 @@ export const getChatbotReply = async ({
 
   /* ===================== STEP 1 : NAME ===================== */
   if (!lead.name) {
+    // If user is asking a direct question (intent detected), answer it first
+    // but still prompt for name afterwards
+    const quickIntent = chatbotIntents.find(intent => 
+      intent.keywords.some(kw => text.includes(normalizeText(kw)))
+    );
+    
+    if (quickIntent && quickIntent.roles.includes("guest")) {
+      const answer = quickIntent.answers[lang] || quickIntent.answers.en;
+      const namePrompt = lang === "hi" 
+        ? "\n\nAapka naam kya hai?" 
+        : "\n\nMay I know your name?";
+      return answer + namePrompt;
+    }
+    
     if (detectRoleFromText(text) || /^[6-9]\d{9}$/.test(text)) {
       return lang === "hi"
         ? "Kripya apna naam batayein 🙂"
@@ -181,6 +213,20 @@ export const getChatbotReply = async ({
     const detectedRole = detectRoleFromText(text);
 
     if (!detectedRole) {
+      // Check if user is asking a question instead of providing role
+      const quickIntent = chatbotIntents.find(intent => 
+        intent.keywords.some(kw => text.includes(normalizeText(kw))) &&
+        intent.roles.includes("guest")
+      );
+      
+      if (quickIntent) {
+        const answer = quickIntent.answers[lang] || quickIntent.answers.en;
+        const rolePrompt = lang === "hi"
+          ? "\n\nAap kaun ho? (Parent / Student / Tutor)"
+          : "\n\nAre you a Parent, Student, or Tutor?";
+        return answer + rolePrompt;
+      }
+      
       return lang === "hi"
         ? "Kripya batayein: Parent, Student ya Tutor?"
         : "Please tell me: Parent, Student, or Tutor?";
@@ -264,7 +310,7 @@ for (const intent of chatbotIntents) {
 }
 
 /* 🎯 DYNAMIC THRESHOLD */
-const threshold = text.split(" ").length <= 2 ? 0.2 : 0.35;
+const threshold = text.split(" ").length <= 2 ? 0.15 : 0.25;
 
 /* ✅ ROLE CHECK (SOFT) */
 if (
@@ -297,5 +343,5 @@ if (
   }
 
   /* ===================== AI FALLBACK ===================== */
-  return aiFallbackReply(lang);
+  return aiFallbackReply(lang, lead.role);
 };

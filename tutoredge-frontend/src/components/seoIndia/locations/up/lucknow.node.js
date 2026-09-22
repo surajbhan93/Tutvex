@@ -2,22 +2,21 @@ export const city = {
   name: "Lucknow",
   state: "Uttar Pradesh",
 
-  // Primary SEO slug
-  slug: "Lucknow",
+  // Primary SEO slug - FIXED: lowercase
+  slug: "lucknow",
 
   // Aliases (VERY IMPORTANT for SEO)
-  aliases: ["Lucknow", "Lucknow"],
+  aliases: ["lucknow"],
 
   locations: [
     // ===== Central / Prime Areas =====
-    // Central & Prime Areas
-  "Hazratganj",
-  "Aminabad",
-  "Charbagh",
-  "Alambagh",
-  "Nishatganj",
-  "Qaiserbagh",
-  "Kaiserbagh",
+    { name: "Hazratganj", slug: "hazratganj" },
+    { name: "Aminabad", slug: "aminabad" },
+    { name: "Charbagh", slug: "charbagh" },
+    { name: "Alambagh", slug: "alambagh" },
+    { name: "Nishatganj", slug: "nishatganj" },
+    { name: "Qaiserbagh", slug: "qaiserbagh" },
+    { name: "Kaiserbagh", slug: "kaiserbagh" },
   "Hussainganj",
   "Mahanagar",
   "Daliganj",

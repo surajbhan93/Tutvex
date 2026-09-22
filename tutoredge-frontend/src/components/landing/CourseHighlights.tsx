@@ -389,6 +389,7 @@ const CourseHighlights = () => {
                         src={course.imageUrl}
                         alt={`${course.title} home tuition program by Tutvex`}
                         fill
+                        sizes="(max-width: 640px) 160px, 180px"
                         className="object-contain drop-shadow-lg"
                       />
                     </div>
@@ -480,6 +481,7 @@ const CourseHighlights = () => {
                         src={card.imageUrl}
                         alt={`${card.title} home tutor program`}
                         fill
+                        sizes="(max-width: 480px) 100vw, (max-width: 1024px) 50vw, 25vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {/* Soft gradient overlay */}

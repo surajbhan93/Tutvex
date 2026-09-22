@@ -13,6 +13,10 @@ import {
   Award,
   Wallet,
   Eye,
+  ArrowUpRight,
+  TrendingDown,
+  CheckCircle,
+  Sparkles,
 } from "lucide-react";
 import {
   LineChart,
@@ -24,8 +28,13 @@ import {
   CartesianGrid,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import Link from "next/link";
+import MembershipBadge from "@/components/badges/MembershipBadge";
+import NotificationPermissionCard from "@/components/notifications/NotificationPermissionCard";
 
 /* =========================
    TYPES
@@ -36,6 +45,9 @@ type Tutor = {
   subjects: string[];
   rating: number;
   price: number;
+  membershipType?: string;
+  currentPlanSlug?: string;
+  revenueSharePercentage?: number;
 };
 
 type SubscriptionPlan = {
@@ -55,6 +67,10 @@ type CreditWallet = {
   availableCredits: number;
   usedCredits: number;
   totalEarned: number;
+  freeCreditsAvailable?: number;
+  freeCreditsTotal?: number;
+  purchasedCreditsAvailable?: number;
+  totalPurchased?: number;
 };
 
 type WalletSummary = {
@@ -138,28 +154,50 @@ const DashboardHomePage = () => {
       ? "bg-gradient-to-r from-blue-500 to-cyan-500"
       : "bg-gradient-to-r from-gray-400 to-gray-500";
 
+  // Credit calculations with free vs purchased breakdown
+  const freeCreditsAvailable = walletSummary?.credits?.freeCreditsAvailable ?? 0;
+  const freeCreditsTotal = walletSummary?.credits?.freeCreditsTotal ?? 3;
+  const purchasedCreditsAvailable = walletSummary?.credits?.purchasedCreditsAvailable ?? 0;
+  const totalPurchased = walletSummary?.credits?.totalPurchased ?? 0;
+  const availableCredits = walletSummary?.credits?.availableCredits ?? 0;
+  const usedCredits = walletSummary?.credits?.usedCredits ?? 0;
+  const totalCredits = (walletSummary?.credits?.availableCredits ?? 0) + (walletSummary?.credits?.usedCredits ?? 0);
+  const creditPercentage = totalCredits > 0 ? (availableCredits / totalCredits) * 100 : 0;
+
   return (
     <div className="space-y-8">
       {/* WELCOME HEADER */}
       <div className="mb-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 p-8 text-white shadow-xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold">
-              Welcome back, {tutor?.fullName || "Tutor"}! 👋
-            </h1>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 flex-wrap mb-2">
+              <h1 className="text-4xl font-bold">
+                Welcome back, {tutor?.fullName || "Tutor"}! 👋
+              </h1>
+              <MembershipBadge
+                membershipType={(tutor?.membershipType as any) || "free"}
+                currentPlanSlug={(tutor?.currentPlanSlug as any) || "free"}
+                revenueSharePercentage={tutor?.revenueSharePercentage}
+                size="lg"
+                showLabel={true}
+              />
+            </div>
             <p className="mt-2 text-indigo-100">
               Here's your subscription and monetization overview
             </p>
           </div>
-          <div className={`rounded-xl px-6 py-3 ${planBadgeColor} shadow-lg`}>
+          <div className={`rounded-xl px-6 py-3 ${planBadgeColor} shadow-lg whitespace-nowrap`}>
             <p className="text-sm font-medium">Current Plan</p>
             <p className="text-2xl font-bold">{currentPlan}</p>
           </div>
         </div>
       </div>
 
+      {/* NOTIFICATION PERMISSION CARD */}
+      <NotificationPermissionCard />
+
       {/* MONETIZATION CARDS */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {/* Current Plan */}
         <Link href="/tutor/subscription">
           <MonetizationCard
@@ -175,15 +213,89 @@ const DashboardHomePage = () => {
           />
         </Link>
 
-        {/* Available Credits */}
+        {/* Credits Card with Detailed Tracking */}
         <Link href="/tutor/credits">
-          <MonetizationCard
-            title="Available Credits"
-            value={walletSummary?.credits?.availableCredits ?? 0}
-            subtitle={`Used: ${walletSummary?.credits?.usedCredits ?? 0}`}
-            icon={Zap}
-            color="yellow"
-          />
+          <div className="group cursor-pointer rounded-2xl bg-gradient-to-br from-yellow-50 to-amber-50 p-6 shadow-sm border-2 border-yellow-200 hover:shadow-lg transition-all">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-yellow-900 flex items-center gap-1.5">
+                  <Zap className="h-4 w-4" />
+                  Lead Credits
+                </p>
+              </div>
+              <div className="rounded-xl p-2 bg-yellow-500 text-white">
+                <Zap className="h-5 w-5" />
+              </div>
+            </div>
+
+            {/* Big Number */}
+            <div className="mb-3">
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black text-yellow-900">{availableCredits}</span>
+                <span className="text-lg text-yellow-600">available</span>
+              </div>
+            </div>
+
+            {/* Free vs Purchased Breakdown */}
+            <div className="space-y-2 mb-3">
+              {/* Free Credits */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-emerald-700">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Free Credits
+                </span>
+                <span className="font-bold text-emerald-800">{freeCreditsAvailable}/{freeCreditsTotal}</span>
+              </div>
+              
+              {/* Purchased Credits */}
+              {totalPurchased > 0 && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="flex items-center gap-1.5 text-blue-700">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    Purchased
+                  </span>
+                  <span className="font-bold text-blue-800">{purchasedCreditsAvailable}</span>
+                </div>
+              )}
+              
+              {/* Used Credits */}
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-gray-600">
+                  <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                  Used
+                </span>
+                <span className="font-bold text-gray-700">{usedCredits}</span>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-3">
+              <div className="h-2.5 bg-yellow-200 rounded-full overflow-hidden flex">
+                {/* Free credits portion */}
+                {freeCreditsAvailable > 0 && (
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all duration-500"
+                    style={{ width: `${(freeCreditsAvailable / totalCredits) * 100}%` }}
+                  />
+                )}
+                {/* Purchased credits portion */}
+                {purchasedCreditsAvailable > 0 && (
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-500"
+                    style={{ width: `${(purchasedCreditsAvailable / totalCredits) * 100}%` }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Action Text */}
+            <div className="flex items-center justify-between pt-2 border-t border-yellow-200">
+              <span className="text-xs font-medium text-yellow-700">
+                {availableCredits === 0 ? "Buy More Credits" : "View Details"}
+              </span>
+              <ArrowUpRight className="h-4 w-4 text-yellow-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </div>
+          </div>
         </Link>
 
         {/* New Leads */}

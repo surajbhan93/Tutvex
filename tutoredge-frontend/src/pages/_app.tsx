@@ -18,6 +18,10 @@ const CookieConsent = dynamic(() => import("@/components/common/CookieConsent"),
   ssr: false,
 });
 
+const NotificationPermissionPopup = dynamic(() => import("@/components/NotificationPermissionPopup"), {
+  ssr: false,
+});
+
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 export default function MyApp({ Component, pageProps }: AppProps) {
@@ -135,6 +139,9 @@ useEffect(() => {
           
           {/* Cookie Consent Modal - Lazy loaded */}
           <CookieConsent />
+          
+          {/* Notification Permission Popup - Lazy loaded */}
+          <NotificationPermissionPopup />
         </>
       )}
     </>

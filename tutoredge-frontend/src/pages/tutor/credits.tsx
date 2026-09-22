@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import TutorDashboardLayout from "@/components/tutor-dashboard/TutorDashboardLayout";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import api from "@/lib/apiClient";
-import { Zap, ShoppingCart, Calendar, TrendingUp, Check } from "lucide-react";
+import { Zap, ShoppingCart, Calendar, TrendingUp, Check, LayoutDashboard } from "lucide-react";
 
 declare global {
   interface Window {
@@ -14,6 +15,9 @@ type CreditWallet = {
   usedCredits: number;
   totalEarned: number;
   totalPurchased: number;
+  freeCreditsAvailable?: number;
+  freeCreditsTotal?: number;
+  purchasedCreditsAvailable?: number;
 };
 
 type CreditTransaction = {
@@ -171,6 +175,16 @@ const CreditsPage = () => {
     <TutorDashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 py-8">
         <div className="mx-auto max-w-7xl px-4">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <Breadcrumb
+              items={[
+                { label: "Dashboard", href: "/tutor/dashboard", icon: LayoutDashboard },
+                { label: "Purchase Credits", icon: Zap },
+              ]}
+            />
+          </div>
+
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-bold text-slate-900">
@@ -183,21 +197,50 @@ const CreditsPage = () => {
 
           {/* Current Balance */}
           <div className="mb-8">
-            <div className="mx-auto max-w-md rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-500 p-6 text-white shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-yellow-100">
-                    Available Credits
+            <div className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-500 p-8 text-white shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-yellow-100 uppercase tracking-wide">
+                    Your Credits Balance
                   </p>
-                  <p className="mt-2 text-5xl font-bold">
+                  <p className="mt-3 text-6xl font-black">
                     {wallet?.availableCredits || 0}
                   </p>
-                  <p className="mt-2 text-xs text-yellow-100">
-                    Used: {wallet?.usedCredits || 0} | Total Earned:{" "}
-                    {wallet?.totalEarned || 0}
+                  <p className="mt-1 text-yellow-100 text-sm">Available Credits</p>
+                </div>
+                <Zap className="h-20 w-20 text-yellow-200" />
+              </div>
+
+              {/* Credit Breakdown */}
+              <div className="mt-6 pt-6 border-t border-yellow-400/30 grid grid-cols-3 gap-4">
+                {/* Free Credits */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full bg-emerald-300"></div>
+                    <p className="text-xs font-semibold text-yellow-100 uppercase">Free</p>
+                  </div>
+                  <p className="text-2xl font-bold">
+                    {wallet?.freeCreditsAvailable || 0}<span className="text-sm font-normal text-yellow-200">/{wallet?.freeCreditsTotal || 3}</span>
                   </p>
                 </div>
-                <Zap className="h-16 w-16 text-yellow-200" />
+
+                {/* Purchased Credits */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-300"></div>
+                    <p className="text-xs font-semibold text-yellow-100 uppercase">Purchased</p>
+                  </div>
+                  <p className="text-2xl font-bold">{wallet?.purchasedCreditsAvailable || 0}</p>
+                </div>
+
+                {/* Used Credits */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                    <p className="text-xs font-semibold text-yellow-100 uppercase">Used</p>
+                  </div>
+                  <p className="text-2xl font-bold">{wallet?.usedCredits || 0}</p>
+                </div>
               </div>
             </div>
           </div>

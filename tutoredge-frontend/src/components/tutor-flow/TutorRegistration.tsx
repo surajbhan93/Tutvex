@@ -362,11 +362,11 @@ const TutorRegistration: NextPage = () => {
         </div>
 
         {/* ─── MAIN FORM SECTION ─── */}
-        <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <div className="grid grid-cols-1 gap-6 lg:gap-8 xl:grid-cols-12">
 
             {/* LEFT SIDEBAR: Video + Benefits */}
-            <div className="lg:col-span-2 flex flex-col gap-6">
+            <div className="xl:col-span-4 flex flex-col gap-6">
               {/* Tutvex Registration Video */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -381,24 +381,26 @@ const TutorRegistration: NextPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white rounded-2xl p-6 border border-indigo-100/80 shadow-sm space-y-4"
+                className="bg-white rounded-2xl p-6 border border-indigo-100/80 shadow-sm space-y-5 sticky top-24"
               >
-                <div className="flex items-center gap-2 border-b pb-3">
-                  <Award className="text-indigo-600" size={20} />
-                  <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide">
+                <div className="flex items-center gap-2.5 pb-4 border-b border-gray-100">
+                  <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
+                    <Award className="text-white" size={20} />
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-base">
                     Why Tutors Choose Tutvex
                   </h3>
                 </div>
 
                 <div className="space-y-4">
                   {benefits.map((b) => (
-                    <div key={b.title} className="flex gap-3 items-start">
-                      <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 flex-shrink-0 mt-0.5">
+                    <div key={b.title} className="flex gap-3.5 items-start group hover:bg-indigo-50/50 -mx-2 px-2 py-2 rounded-xl transition-colors">
+                      <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 flex-shrink-0 mt-0.5 group-hover:bg-indigo-100 transition-colors">
                         {b.icon}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-sm text-gray-800">{b.title}</h4>
-                        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{b.desc}</p>
+                        <h4 className="font-semibold text-sm text-gray-900 leading-snug">{b.title}</h4>
+                        <p className="text-xs text-gray-600 mt-1 leading-relaxed">{b.desc}</p>
                       </div>
                     </div>
                   ))}
@@ -411,19 +413,19 @@ const TutorRegistration: NextPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="lg:col-span-3"
+              className="xl:col-span-8"
             >
-              <div className="mb-6 bg-white p-6 rounded-2xl border border-indigo-100 shadow-sm">
-                <div className="flex items-center justify-between">
+              <div className="mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 p-6 md:p-8 rounded-2xl shadow-xl text-white">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
+                    <h2 className="text-2xl md:text-3xl font-bold">
                       Create Your Tutor Account
                     </h2>
-                    <p className="text-xs md:text-sm text-gray-500 mt-1">
+                    <p className="text-sm md:text-base text-indigo-100 mt-2 leading-relaxed">
                       Complete your profile to get parent lead calls & student bookings
                     </p>
                   </div>
-                  <span className="bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-indigo-100">
+                  <span className="bg-white/20 backdrop-blur-md text-white text-xs font-bold px-4 py-2 rounded-full border border-white/30 whitespace-nowrap">
                     Step 1 of 3
                   </span>
                 </div>
@@ -432,18 +434,25 @@ const TutorRegistration: NextPage = () => {
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
                 {/* 📸 PROFILE / PORTFOLIO PHOTO UPLOAD SECTION */}
-                <div className="section-card p-6">
-                  <div className="flex items-center gap-2 mb-4 border-b pb-3">
-                    <Camera size={20} className="text-indigo-600" />
-                    <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide">
-                      Tutor Profile & Portfolio Photo
-                    </h3>
+                <div className="section-card p-6 md:p-8">
+                  <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-gray-100">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
+                      <Camera size={20} className="text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-gray-900 text-base tracking-tight">
+                        Create Your Tutor Profile
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        Build trust and credibility with parents
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-center gap-6">
-                    {/* Avatar Preview */}
-                    <div className="relative group flex-shrink-0">
-                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-100 bg-gray-100 flex items-center justify-center shadow-md">
+                  <div className="flex flex-col md:flex-row items-start gap-6 md:gap-8">
+                    {/* Avatar Preview with Enhanced Design */}
+                    <div className="relative flex-shrink-0 mx-auto md:mx-0">
+                      <div className="relative w-32 h-32 md:w-36 md:h-36 rounded-2xl overflow-hidden border-4 border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center shadow-lg">
                         {imagePreview ? (
                           <img
                             src={imagePreview}
@@ -451,29 +460,68 @@ const TutorRegistration: NextPage = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <User size={40} className="text-gray-400" />
+                          <div className="text-center">
+                            <User size={48} className="text-gray-300 mx-auto mb-2" />
+                            <p className="text-[10px] text-gray-400 font-medium px-2">No photo yet</p>
+                          </div>
                         )}
                       </div>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute bottom-0 right-0 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-lg transition-transform hover:scale-110"
+                        className="absolute -bottom-2 -right-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white p-3 rounded-full shadow-xl transition-all hover:scale-110 border-4 border-white"
                         title="Upload Photo"
                       >
-                        <Camera size={14} />
+                        <Upload size={16} />
                       </button>
+                      {imagePreview && (
+                        <div className="absolute -top-2 -left-2 bg-emerald-500 text-white p-1.5 rounded-full shadow-lg border-4 border-white">
+                          <CheckCircle2 size={14} />
+                        </div>
+                      )}
                     </div>
 
-                    {/* Upload Controls */}
-                    <div className="flex-1 space-y-3 text-center sm:text-left">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800">Upload Professional Photo</p>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          Tutors with real photos receive 3x more parent demo requests (Max 5MB).
-                        </p>
+                    {/* Upload Controls with Enhanced Messaging */}
+                    <div className="flex-1 space-y-4 text-center md:text-left">
+                      <div className="space-y-2">
+                        <h4 className="text-base font-bold text-gray-900">
+                          Upload a professional photo to build trust with parents and improve your chances of getting student enquiries
+                        </h4>
+                        
+                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+                          <div className="flex items-start gap-2">
+                            <div className="p-1.5 bg-blue-500 rounded-lg flex-shrink-0 mt-0.5">
+                              <Sparkles size={14} className="text-white" />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-xs font-semibold text-blue-900">
+                                📈 3x More Student Enquiries
+                              </p>
+                              <p className="text-[11px] text-blue-700 mt-0.5 leading-relaxed">
+                                Tutors with professional photos receive significantly more parent demo requests and bookings
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                          <div className="flex items-start gap-2">
+                            <div className="p-1.5 bg-amber-500 rounded-lg flex-shrink-0 mt-0.5">
+                              <Award size={14} className="text-white" />
+                            </div>
+                            <div className="text-left">
+                              <p className="text-xs font-semibold text-amber-900">
+                                🔍 Google Search Visibility
+                              </p>
+                              <p className="text-[11px] text-amber-700 mt-0.5 leading-relaxed">
+                                Your tutor profile may appear in Google Search, helping parents discover you online
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                      <div className="flex flex-col sm:flex-row gap-2 justify-center md:justify-start">
                         <input
                           ref={fileInputRef}
                           type="file"
@@ -484,26 +532,41 @@ const TutorRegistration: NextPage = () => {
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-semibold text-xs rounded-xl border border-indigo-200 transition-colors"
+                          className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5"
                         >
-                          <Upload size={14} /> Choose Photo File
+                          <Upload size={16} /> Upload Your Photo
                         </button>
+                        <p className="text-[11px] text-gray-400 self-center px-2">
+                          JPG, PNG up to 5MB
+                        </p>
                       </div>
 
                       {/* Preset Avatar Selection */}
-                      <div className="pt-2">
-                        <p className="text-[11px] font-medium text-gray-400 mb-1.5">Or choose a quick avatar:</p>
-                        <div className="flex gap-2 justify-center sm:justify-start">
+                      <div className="pt-1">
+                        <p className="text-xs font-semibold text-gray-600 mb-2">Or select a quick avatar:</p>
+                        <div className="flex gap-2.5 justify-center md:justify-start">
                           {PRESET_AVATARS.map((url, i) => (
-                            <img
+                            <button
                               key={i}
-                              src={url}
-                              alt={`Preset ${i}`}
+                              type="button"
                               onClick={() => selectPresetAvatar(url)}
-                              className={`w-9 h-9 rounded-full object-cover cursor-pointer border-2 transition-all hover:scale-110 ${
-                                imagePreview === url ? 'border-indigo-600 ring-2 ring-indigo-200' : 'border-transparent'
-                              }`}
-                            />
+                              className="relative group"
+                            >
+                              <img
+                                src={url}
+                                alt={`Avatar ${i + 1}`}
+                                className={`w-12 h-12 rounded-xl object-cover cursor-pointer border-3 transition-all hover:scale-110 hover:shadow-lg ${
+                                  imagePreview === url 
+                                    ? 'border-indigo-600 ring-3 ring-indigo-200 scale-105' 
+                                    : 'border-gray-200 hover:border-indigo-300'
+                                }`}
+                              />
+                              {imagePreview === url && (
+                                <div className="absolute -top-1 -right-1 bg-indigo-600 text-white p-0.5 rounded-full">
+                                  <CheckCircle2 size={12} />
+                                </div>
+                              )}
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -513,32 +576,34 @@ const TutorRegistration: NextPage = () => {
 
                 {/* FORM SECTIONS */}
                 {fieldGroups.map((group, gi) => (
-                  <div key={group.title} className="section-card">
+                  <div key={group.title} className="section-card shadow-md">
                     {/* Section Header */}
                     <div
-                      className="section-header"
+                      className="section-header py-4 px-6"
                       style={{
                         background: `linear-gradient(135deg, ${group.color
                           .replace('from-', '')
                           .replace(' to-', ', ')})`,
                       }}
                     >
-                      {group.icon}
-                      <span>{group.title}</span>
+                      <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
+                        {group.icon}
+                      </div>
+                      <span className="text-base font-bold">{group.title}</span>
                     </div>
 
                     {/* Form Input Grid */}
-                    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5">
                       {group.fields.map(({ key, label, icon, placeholder }) => (
                         <div
                           key={key}
                           className={
                             key === 'subjects' || key === 'classesTaught' || key === 'languages' || key === 'area'
-                              ? 'sm:col-span-2'
+                              ? 'md:col-span-2'
                               : ''
                           }
                         >
-                          <label className="text-xs font-semibold text-gray-700 block mb-1.5">
+                          <label className="text-sm font-bold text-gray-800 block mb-2">
                             {label} <span className="text-red-500">*</span>
                           </label>
 
@@ -613,8 +678,12 @@ const TutorRegistration: NextPage = () => {
                 ))}
 
                 {/* Terms Note */}
-                <div className="bg-white p-4 rounded-xl border border-gray-200 text-center">
-                  <p className="text-xs text-gray-500 leading-relaxed">
+                <div className="bg-gradient-to-r from-gray-50 to-indigo-50 p-5 rounded-xl border border-gray-200 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Shield size={18} className="text-indigo-600" />
+                    <p className="text-sm font-bold text-gray-900">Your Data is Secure</p>
+                  </div>
+                  <p className="text-xs text-gray-600 leading-relaxed">
                     By submitting this form, you agree to Tutvex Education&apos;s{' '}
                     <a href="/terms" target="_blank" className="text-indigo-600 font-semibold hover:underline">
                       Terms of Service
@@ -632,17 +701,17 @@ const TutorRegistration: NextPage = () => {
                   type="submit"
                   disabled={isLoading}
                   whileTap={{ scale: 0.98 }}
-                  className="submit-btn"
+                  className="submit-btn py-4 text-lg shadow-xl"
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Creating Account & Sending OTP...
+                      <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Creating Your Account & Sending OTP...
                     </>
                   ) : (
                     <>
                       <span>Continue to Verify Phone (OTP)</span>
-                      <ChevronRight size={18} />
+                      <ChevronRight size={20} />
                     </>
                   )}
                 </motion.button>

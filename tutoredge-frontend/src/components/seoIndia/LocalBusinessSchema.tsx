@@ -16,12 +16,12 @@ export default function LocalBusinessSchema({
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `https://yourdomain.com/india/${city}/${location
+    "@id": `https://tutvex.com/india/${city}/${location
       .toLowerCase()
       .replace(/\s+/g, "-")}`,
     name: `Tutvex – Home Tutors in ${location}, ${cityName}`,
     description: `Tutvex provides verified home and online tutors in ${location}, ${cityName} for CBSE, ICSE, state boards and competitive exams.`,
-    url: `https://yourdomain.com/india/${city}/${location
+    url: `https://tutvex.com/india/${city}/${location
       .toLowerCase()
       .replace(/\s+/g, "-")}`,
     areaServed: {

@@ -22,6 +22,13 @@ export interface ILeadUnlock extends Document {
   lostReason?: string;
   notes?: string;
   unlockedAt: Date;
+  // Contact access control
+  contactAccessRequested: boolean;
+  contactAccessRequestedAt?: Date;
+  contactAccessGranted: boolean;
+  contactAccessGrantedAt?: Date;
+  contactAccessGrantedBy?: Types.ObjectId; // Admin who granted access
+  contactAccessNotes?: string; // Admin notes
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -52,6 +59,13 @@ const LeadUnlockSchema = new Schema<ILeadUnlock>(
     lostReason: { type: String },
     notes: { type: String },
     unlockedAt: { type: Date, required: true, default: Date.now },
+    // Contact access control
+    contactAccessRequested: { type: Boolean, default: false },
+    contactAccessRequestedAt: { type: Date },
+    contactAccessGranted: { type: Boolean, default: false },
+    contactAccessGrantedAt: { type: Date },
+    contactAccessGrantedBy: { type: Schema.Types.ObjectId, ref: "User" },
+    contactAccessNotes: { type: String },
   },
   { timestamps: true }
 );

@@ -65,7 +65,7 @@ export default function AllahabadSEO({
       <meta name="geo.position" content="25.4358;81.8463" />
       <meta name="ICBM" content="25.4358, 81.8463" />
 
-      <link rel="canonical" href="https://yourdomain.com" />
+      <link rel="canonical" href="https://tutvex.com" />
     </Head>
   );
 }

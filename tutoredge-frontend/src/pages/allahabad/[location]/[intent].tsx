@@ -857,16 +857,38 @@ export const getStaticPaths: GetStaticPaths = async () => {
     });
   });
 
+  console.log(`Generated ${paths.length} static paths for /allahabad/[location]/[intent]`);
+
   return {
     paths,
-    // Blocking fallback allows dynamic generation of all 100,000+ combinations without heavy build times
-    fallback: "blocking",
+    fallback: false, // Changed from "blocking" to false - invalid URLs will get proper 404
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const rawLoc = params?.location?.toString() || "civil-lines";
-  const rawIntent = params?.intent?.toString() || "home-tutor";
+  const rawLoc = params?.location?.toString() || "";
+  const rawIntent = params?.intent?.toString() || "";
+
+  // Validate location
+  const normalizedLocation = rawLoc.replace(/-/g, ' ').toLowerCase();
+  const locationExists = ALLAHABAD_LOCATIONS.some(
+    loc => loc.toLowerCase() === normalizedLocation
+  );
+
+  if (!locationExists) {
+    return { notFound: true };
+  }
+
+  // Validate intent
+  const allIntents = Object.values(INTENTS).flat();
+  const normalizedIntent = rawIntent.replace(/-/g, ' ').toLowerCase();
+  const intentExists = allIntents.some(
+    intent => intent.toLowerCase() === normalizedIntent
+  );
+
+  if (!intentExists) {
+    return { notFound: true };
+  }
 
   const formattedLocation = rawLoc
     .replace(/-/g, " ")

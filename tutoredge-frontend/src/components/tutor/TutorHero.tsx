@@ -12,6 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { resolveImage } from "@/lib/resolveImage";
+import MembershipBadge from "@/components/badges/MembershipBadge";
 
 interface TutorHeroProps {
   name: string;
@@ -29,6 +30,9 @@ interface TutorHeroProps {
   rating?: number;
   totalStudents?: number;
   isVerified?: boolean;
+  membershipType?: string;
+  currentPlanSlug?: string;
+  revenueSharePercentage?: number;
   onBookDemo: () => void;
   onWhatsApp?: () => void;
   onRequestCallback?: () => void;
@@ -49,6 +53,9 @@ export default function TutorHero({
   rating = 4.5,
   totalStudents = 0,
   isVerified = true,
+  membershipType = "free",
+  currentPlanSlug = "free",
+  revenueSharePercentage,
   onBookDemo,
   onWhatsApp,
   onRequestCallback,
@@ -98,17 +105,28 @@ export default function TutorHero({
 
             {/* Name and Verification */}
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
-                {name}
-                {isVerified && (
-                  <span
-                    className="inline-flex items-center justify-center p-1 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-md"
-                    title="Verified Tutor"
-                  >
-                    <CheckCircle size={18} className="text-white" />
-                  </span>
-                )}
-              </h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight flex items-center gap-2.5">
+                  {name}
+                  {isVerified && (
+                    <span
+                      className="inline-flex items-center justify-center p-1 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-md"
+                      title="Verified Tutor"
+                    >
+                      <CheckCircle size={18} className="text-white" />
+                    </span>
+                  )}
+                </h1>
+                
+                {/* Membership Badge */}
+                <MembershipBadge
+                  membershipType={(membershipType as any) || "free"}
+                  currentPlanSlug={(currentPlanSlug as any) || "free"}
+                  revenueSharePercentage={revenueSharePercentage}
+                  size="lg"
+                  showLabel={true}
+                />
+              </div>
 
               {/* Headline / Subject & Location */}
               <h2 className="text-lg sm:text-xl text-indigo-600 font-bold mt-1">

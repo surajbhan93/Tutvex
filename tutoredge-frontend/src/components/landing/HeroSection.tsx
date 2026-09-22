@@ -236,8 +236,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   const router = useRouter();
 
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 60);
-    return () => clearTimeout(t);
+    // Remove artificial delay to improve LCP
+    setMounted(true);
   }, []);
 
   const fu = (delay: string) =>
@@ -620,6 +620,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                       alt="A student studying with a verified Tutvex home tutor in India"
                       fill
                       priority
+                      fetchPriority="high"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 55vw"
                       className="object-cover"
                     />

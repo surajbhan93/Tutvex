@@ -27,6 +27,18 @@ export const chatbotIntents = [
       "branch",
       "kaha",
       "location",
+      "meerut",
+      "lucknow",
+      "varanasi",
+      "noida",
+      "prayagraj",
+      "allahabad",
+      "kanpur",
+      "agra",
+      "naini",
+      "civil lines",
+      "sector",
+      "area",
     ],
     roles: ["guest", "parent", "student"],
     answers: {
@@ -129,11 +141,20 @@ export const chatbotIntents = [
     intent: "tutor_registration",
     keywords: [
       "tutor kaise bane",
+      "tutor kaise ban",
       "register tutor",
       "tutor registration",
       "teacher kaise bane",
+      "teacher kaise ban",
       "tutor join",
       "tutor signup",
+      "tutor banna hai",
+      "tutor banana hai",
+      "teacher banna",
+      "kaise teacher ban",
+      "mai tutor banna chahta",
+      "become tutor",
+      "join as tutor",
     ],
     roles: ["guest", "tutor"],
     answers: {
@@ -155,15 +176,60 @@ export const chatbotIntents = [
       "verification",
       "selection",
       "process",
+      "approval",
+      "approved",
+      "status",
+      "meri approval",
+      "approval nahi hui",
+      "kab approval",
+      "selected",
+      "reject",
     ],
     roles: ["tutor"],
     answers: {
       en:
         "Tutor selection process:\n" +
-        "1️⃣ Registration\n2️⃣ Interview (within 2 days)\n3️⃣ Document verification\n4️⃣ Final selection",
+        "1️⃣ Registration\n2️⃣ Interview (within 2 days)\n3️⃣ Document verification\n4️⃣ Final selection\n\n" +
+        "For application status, please contact support: 9305275932",
       hi:
         "Tutor selection process:\n" +
-        "1️⃣ Registration\n2️⃣ 2 din ke andar interview\n3️⃣ Documents verification\n4️⃣ Final selection",
+        "1️⃣ Registration\n2️⃣ 2 din ke andar interview\n3️⃣ Documents verification\n4️⃣ Final selection\n\n" +
+        "Application status ke liye support se contact karein: 9305275932",
+    },
+  },
+
+  /* ===================== TUTOR WANTS STUDENTS (LEAD REQUEST) ===================== */
+  {
+    intent: "tutor_wants_students",
+    keywords: [
+      "student chahiye",
+      "students chahiye",
+      "I want students",
+      "i want student",
+      "students kaise milenge",
+      "student kaise milega",
+      "mujhe student do",
+      "students kab milenge",
+      "lead chahiye",
+      "leads",
+      "student nahi mil raha",
+    ],
+    roles: ["tutor"],
+    answers: {
+      en:
+        "📚 To get students:\n\n" +
+        "1️⃣ Complete your profile (100%)\n" +
+        "2️⃣ Get verified by admin\n" +
+        "3️⃣ Students will be assigned based on your subjects & location\n" +
+        "4️⃣ You can also purchase lead credits to unlock student requests\n\n" +
+        "For more info, contact: 9305275932",
+      hi:
+        "📚 Students paane ke liye:\n\n" +
+        "1️⃣ Profile complete karein (100%)\n" +
+        "2️⃣ Admin se verification karwayein\n" +
+        "3️⃣ Aapke subjects aur location ke hisaab se students assign honge\n" +
+        "4️⃣ Aap lead credits purchase karke student requests unlock kar sakte hain\n\n" +
+        "Zyada jaankari ke liye: 9305275932",
     },
   },
 
@@ -302,11 +368,46 @@ export const chatbotIntents = [
       "income",
       "payment",
       "kitna kama",
+      "kamayenge",
+      "kamai",
+      "paise",
+      "kitna milega",
     ],
     roles: ["tutor"],
     answers: {
       en: "Tutors can earn between ₹2000 to ₹8000 per student.",
       hi: "Tutor har student se ₹2000 se ₹8000 tak kama sakte hain.",
+    },
+  },
+
+  /* ===================== PROFILE COMPLETION ===================== */
+  {
+    intent: "profile_completion",
+    keywords: [
+      "profile",
+      "complete profile",
+      "profile kaise banaye",
+      "details",
+      "information",
+      "profile complete",
+      "100 percent",
+    ],
+    roles: ["tutor", "parent", "student"],
+    answers: {
+      en:
+        "To complete your profile:\n" +
+        "1️⃣ Login to your account\n" +
+        "2️⃣ Go to Profile section\n" +
+        "3️⃣ Fill all mandatory fields (subjects, experience, location, documents)\n" +
+        "4️⃣ Submit for verification\n\n" +
+        "Need help? Contact: 9305275932",
+      hi:
+        "Profile complete karne ke liye:\n" +
+        "1️⃣ Apne account me login karein\n" +
+        "2️⃣ Profile section me jayein\n" +
+        "3️⃣ Sabhi zaroori fields bharen (subjects, experience, location, documents)\n" +
+        "4️⃣ Verification ke liye submit karein\n\n" +
+        "Madad chahiye? Contact: 9305275932",
     },
   },
 

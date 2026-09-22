@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import notificationService from "../services/notification.service";
+import UserNotificationToken from "../models/UserNotificationToken";
 
 export const notificationController = {
   /**
@@ -101,6 +102,171 @@ export const notificationController = {
       reply.status(200).send({ success: true, message: "Notification deleted" });
     } catch (error: any) {
       reply.status(500).send({ success: false, message: error.message });
+    }
+  },
+
+  /**
+   * POST /notifications/register-token - Register FCM token
+   */
+  async registerToken(
+    req: FastifyRequest<{
+      Body: {
+        token: string;
+        platform?: "web" | "android" | "ios";
+        browser?: string;
+        deviceId?: string;
+      };
+    }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const userId = (req as any).user?.id; // Allow anonymous registration
+      const { token, platform = "web", browser, deviceId } = req.body;
+
+      console.log(`[FCM] Registering token for user: ${userId || 'anonymous'}`);
+
+      if (!token) {
+        return reply.status(400).send({
+          success: false,
+          message: "Token is required",
+        });
+      }
+
+      // Check if token already exists
+      let existingToken = await UserNotificationToken.findOne({ token });
+
+      if (existingToken) {
+        // Update existing token
+        if (userId) existingToken.userId = userId; // Associate with user if authenticated
+        existingToken.platform = platform;
+        existingToken.browser = browser;
+        existingToken.deviceId = deviceId;
+        existingToken.isActive = true;
+        existingToken.lastUsedAt = new Date();
+        await existingToken.save();
+
+        console.log(`[FCM] Token updated for user: ${userId || 'anonymous'}`);
+
+        return reply.status(200).send({
+          success: true,
+          message: "Token updated successfully",
+          data: { tokenId: existingToken._id },
+        });
+      }
+
+      // Create new token
+      const tokenData: any = {
+        token,
+        platform,
+        browser,
+        deviceId,
+        isActive: true,
+        lastUsedAt: new Date(),
+      };
+
+      if (userId) {
+        tokenData.userId = userId;
+      }
+
+      const newToken = await UserNotificationToken.create(tokenData);
+
+      console.log(`[FCM] New token created for user: ${userId || 'anonymous'}`);
+
+      reply.status(201).send({
+        success: true,
+        message: "Token registered successfully",
+        data: { tokenId: newToken._id },
+      });
+    } catch (error: any) {
+      console.error("Error registering FCM token:", error);
+      
+      // Handle duplicate key error
+      if (error.code === 11000) {
+        return reply.status(200).send({
+          success: true,
+          message: "Token already registered",
+        });
+      }
+
+      reply.status(500).send({
+        success: false,
+        message: error.message || "Failed to register token",
+      });
+    }
+  },
+
+  /**
+   * DELETE /notifications/unregister-token - Unregister FCM token
+   */
+  async unregisterToken(
+    req: FastifyRequest<{ Body: { token: string } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const userId = (req as any).user.id;
+      const { token } = req.body;
+
+      if (!token) {
+        return reply.status(400).send({
+          success: false,
+          message: "Token is required",
+        });
+      }
+
+      // Find and deactivate the token
+      const tokenDoc = await UserNotificationToken.findOne({
+        token,
+        userId,
+      });
+
+      if (!tokenDoc) {
+        return reply.status(404).send({
+          success: false,
+          message: "Token not found",
+        });
+      }
+
+      tokenDoc.isActive = false;
+      await tokenDoc.save();
+
+      reply.status(200).send({
+        success: true,
+        message: "Token unregistered successfully",
+      });
+    } catch (error: any) {
+      console.error("Error unregistering FCM token:", error);
+      reply.status(500).send({
+        success: false,
+        message: error.message || "Failed to unregister token",
+      });
+    }
+  },
+
+  /**
+   * GET /notifications/token-status - Get FCM token status for current user
+   */
+  async getTokenStatus(req: FastifyRequest, reply: FastifyReply) {
+    try {
+      const userId = (req as any).user.id;
+
+      const tokens = await UserNotificationToken.find({
+        userId,
+        isActive: true,
+      }).select("platform browser deviceId lastUsedAt createdAt");
+
+      reply.status(200).send({
+        success: true,
+        data: {
+          hasActiveTokens: tokens.length > 0,
+          tokenCount: tokens.length,
+          tokens,
+        },
+      });
+    } catch (error: any) {
+      reply.status(500).send({
+        success: false,
+        message: error.message,
+      });
     }
   },
 };

@@ -102,6 +102,9 @@ export class SubscriptionService {
       referenceId: (subscription._id as Types.ObjectId).toString(),
     });
 
+    // ✅ UPDATE USER MEMBERSHIP TYPE
+    await this.updateTutorMembership(tutorId, "free", 0);
+
     return subscription;
   }
 
@@ -185,7 +188,28 @@ export class SubscriptionService {
       }
     }
 
+    // ✅ UPDATE USER MEMBERSHIP TYPE AND PRIORITY
+    await this.updateTutorMembership(tutorId, plan.slug, plan.priorityScore);
+
     return subscription;
+  }
+
+  /**
+   * Update tutor's membership type and priority
+   */
+  async updateTutorMembership(
+    tutorId: string,
+    planSlug: string,
+    priorityScore: number
+  ): Promise<void> {
+    const User = (await import("../models/User")).default;
+    
+    await User.findByIdAndUpdate(tutorId, {
+      membershipType: "subscription",
+      currentPlanSlug: planSlug,
+      subscriptionPriority: priorityScore,
+      revenueSharePercentage: 0,
+    });
   }
 
   /**
@@ -378,6 +402,65 @@ export class SubscriptionService {
     }
 
     console.log("✅ Default subscription plans seeded successfully");
+  }
+
+  /**
+   * Get membership badge information for display
+   */
+  getMembershipBadge(
+    membershipType: string,
+    currentPlanSlug: string,
+    revenueSharePercentage?: number
+  ): { 
+    label: string; 
+    icon: string; 
+    color: string; 
+    bgColor: string;
+    borderColor: string;
+  } {
+    if (membershipType === "revenue_share") {
+      return {
+        label: "Revenue Share",
+        icon: "🤝",
+        color: "text-emerald-700",
+        bgColor: "bg-emerald-100",
+        borderColor: "border-emerald-200",
+      };
+    }
+
+    // Subscription badges
+    const badges: Record<string, any> = {
+      free: {
+        label: "Free",
+        icon: "⚡",
+        color: "text-slate-600",
+        bgColor: "bg-slate-100",
+        borderColor: "border-slate-200",
+      },
+      starter: {
+        label: "Starter",
+        icon: "⭐",
+        color: "text-blue-700",
+        bgColor: "bg-blue-100",
+        borderColor: "border-blue-200",
+      },
+      pro: {
+        label: "Pro",
+        icon: "✨",
+        color: "text-purple-700",
+        bgColor: "bg-purple-100",
+        borderColor: "border-purple-200",
+      },
+      premium: {
+        label: "Premium",
+        icon: "👑",
+        color: "text-amber-700",
+        bgColor: "bg-amber-100",
+        borderColor: "border-amber-200",
+      },
+    };
+
+    return badges[currentPlanSlug] || badges.free;
   }
 }
 

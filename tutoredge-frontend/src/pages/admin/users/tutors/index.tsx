@@ -14,7 +14,9 @@ import {
   BookOpen,
   Phone,
   UserCheck,
+  Download,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 
 /* -------------------- COMPREHENSIVE CITY NORMALIZER -------------------- */
 const normalizeCity = (c: any): string => {
@@ -248,6 +250,83 @@ export default function AdminTutorsPage() {
 
   const selectedCityName = city ? formatCityName(city) : null;
 
+  // Export to Excel function
+  const exportToExcel = () => {
+    // Prepare data for export
+    const exportData = filteredTutors.map((tutor) => {
+      const locationStr =
+        [tutor.location?.area, tutor.location?.city, tutor.location?.state]
+          .filter(Boolean)
+          .join(", ") ||
+        tutor.city ||
+        "Not provided";
+
+      const classesStr = Array.isArray(tutor.classesTaught)
+        ? tutor.classesTaught.join(", ")
+        : tutor.classesTaught || "Not specified";
+
+      const subjectsStr = Array.isArray(tutor.subjects)
+        ? tutor.subjects.join(", ")
+        : tutor.subjects || "Not specified";
+
+      const phoneNum =
+        tutor.phone || tutor.mobileNumber || tutor.phoneNumber || "Not provided";
+
+      return {
+        "Name": tutor.fullName || "N/A",
+        "Email": tutor.email || "N/A",
+        "Mobile Number": phoneNum,
+        "Location": locationStr,
+        "City": tutor.location?.city || tutor.city || "N/A",
+        "State": tutor.location?.state || "N/A",
+        "Area": tutor.location?.area || "N/A",
+        "Classes Taught": classesStr,
+        "Subjects": subjectsStr,
+        "Status": tutor.status || "Pending",
+        "Profile Complete": tutor.isProfileComplete ? "Yes" : "No",
+        "Qualification": tutor.qualification || "N/A",
+        "Experience": tutor.experience || "N/A",
+        "Preferred Mode": tutor.preferredMode || "N/A",
+        "Registration Date": tutor.createdAt ? new Date(tutor.createdAt).toLocaleDateString() : "N/A",
+      };
+    });
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths
+    const columnWidths = [
+      { wch: 25 }, // Name
+      { wch: 30 }, // Email
+      { wch: 15 }, // Mobile
+      { wch: 40 }, // Location
+      { wch: 15 }, // City
+      { wch: 15 }, // State
+      { wch: 20 }, // Area
+      { wch: 30 }, // Classes
+      { wch: 40 }, // Subjects
+      { wch: 12 }, // Status
+      { wch: 15 }, // Profile Complete
+      { wch: 20 }, // Qualification
+      { wch: 15 }, // Experience
+      { wch: 15 }, // Preferred Mode
+      { wch: 15 }, // Registration Date
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tutors");
+
+    // Generate filename with date and city filter
+    const dateStr = new Date().toISOString().split("T")[0];
+    const cityStr = selectedCityName ? `_${selectedCityName}` : "_AllCities";
+    const filename = `Tutors_Data${cityStr}_${dateStr}.xlsx`;
+
+    // Download file
+    XLSX.writeFile(workbook, filename);
+  };
+
   if (loading) {
     return (
       <AdminDashboardLayout>
@@ -281,6 +360,15 @@ export default function AdminTutorsPage() {
                 : "View, search, and manage all registered tutors and their applications"}
             </p>
           </div>
+          
+          {/* Export Button */}
+          <button
+            onClick={exportToExcel}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
+          >
+            <Download size={18} />
+            Export to Excel ({filteredTutors.length})
+          </button>
         </div>
 
         {/* Stats Cards (City-Aware & Clickable Filters) */}
@@ -408,8 +496,8 @@ export default function AdminTutorsPage() {
         </div>
 
         {/* Tutors Data Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50/50 border-b flex items-center justify-between text-xs text-gray-500 font-medium">
+        <div className="bg-white rounded-xl shadow-lg border-2 border-gray-300 overflow-hidden">
+          <div className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-between text-xs text-white font-bold border-b-2 border-gray-300">
             <span>
               Showing {filteredTutors.length} of {stats.total}{" "}
               {selectedCityName ? `tutors in ${selectedCityName}` : "total tutors"}
@@ -417,39 +505,39 @@ export default function AdminTutorsPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-100/70 text-gray-700 font-semibold border-b text-xs uppercase tracking-wider">
+            <table className="w-full text-sm text-left border-collapse">
+              <thead className="bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-xs uppercase tracking-wider">
                 <tr>
-                  <th className="px-4 py-3.5">Name</th>
-                  <th className="px-4 py-3.5">Email</th>
-                  <th className="px-4 py-3.5">
+                  <th className="px-4 py-4 border-r-2 border-gray-300">Name</th>
+                  <th className="px-4 py-4 border-r-2 border-gray-300">Email</th>
+                  <th className="px-4 py-4 border-r-2 border-gray-300">
                     <div className="flex items-center gap-1">
-                      <Phone size={14} className="text-gray-500" />
+                      <Phone size={14} className="text-white" />
                       <span>Mobile Number</span>
                     </div>
                   </th>
-                  <th className="px-4 py-3.5">
+                  <th className="px-4 py-4 border-r-2 border-gray-300">
                     <div className="flex items-center gap-1">
-                      <MapPin size={14} className="text-gray-500" />
+                      <MapPin size={14} className="text-white" />
                       <span>Location</span>
                     </div>
                   </th>
-                  <th className="px-4 py-3.5">
+                  <th className="px-4 py-4 border-r-2 border-gray-300">
                     <div className="flex items-center gap-1">
-                      <BookOpen size={14} className="text-gray-500" />
+                      <BookOpen size={14} className="text-white" />
                       <span>Classes Taught</span>
                     </div>
                   </th>
-                  <th className="px-4 py-3.5">Status</th>
-                  <th className="px-4 py-3.5">Profile</th>
-                  <th className="px-4 py-3.5 text-center">Action</th>
+                  <th className="px-4 py-4 border-r-2 border-gray-300">Status</th>
+                  <th className="px-4 py-4 border-r-2 border-gray-300">Profile</th>
+                  <th className="px-4 py-4 text-center">Action</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {filteredTutors.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center py-10 text-gray-500">
+                    <td colSpan={8} className="text-center py-10 text-gray-500 border-b-2 border-gray-300">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Filter className="text-gray-300" size={32} />
                         <p className="font-medium text-gray-600">
@@ -468,7 +556,7 @@ export default function AdminTutorsPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredTutors.map((tutor) => {
+                  filteredTutors.map((tutor, index) => {
                     const locationStr =
                       [tutor.location?.area, tutor.location?.city, tutor.location?.state]
                         .filter(Boolean)
@@ -486,24 +574,31 @@ export default function AdminTutorsPage() {
                     return (
                       <tr
                         key={tutor._id}
-                        className="hover:bg-gray-50/80 transition-colors"
+                        className={`hover:bg-green-50/30 transition-colors border-b-2 border-gray-300 ${
+                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        }`}
                       >
                         {/* Name */}
-                        <td className="px-4 py-3 font-semibold text-gray-800">
-                          {tutor.fullName || "N/A"}
+                        <td className="px-4 py-3 font-semibold text-gray-800 border-r-2 border-gray-300">
+                          <div className="flex items-center gap-2">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                              {(tutor.fullName || "?").charAt(0).toUpperCase()}
+                            </div>
+                            <span>{tutor.fullName || "N/A"}</span>
+                          </div>
                         </td>
 
                         {/* Email */}
-                        <td className="px-4 py-3 text-gray-600">
+                        <td className="px-4 py-3 text-gray-600 border-r-2 border-gray-300">
                           {tutor.email || "N/A"}
                         </td>
 
                         {/* Mobile Number */}
-                        <td className="px-4 py-3 font-medium text-gray-700">
+                        <td className="px-4 py-3 font-medium text-gray-700 border-r-2 border-gray-300">
                           {phoneNum !== "Not provided" ? (
                             <a
                               href={`tel:${phoneNum}`}
-                              className="text-gray-800 hover:text-indigo-600 transition-colors"
+                              className="text-gray-800 hover:text-green-600 transition-colors"
                             >
                               {phoneNum}
                             </a>
@@ -514,7 +609,7 @@ export default function AdminTutorsPage() {
 
                         {/* Location */}
                         <td
-                          className="px-4 py-3 text-gray-600 max-w-[200px] truncate"
+                          className="px-4 py-3 text-gray-600 max-w-[200px] truncate border-r-2 border-gray-300"
                           title={locationStr}
                         >
                           {locationStr}
@@ -522,21 +617,21 @@ export default function AdminTutorsPage() {
 
                         {/* Classes Taught */}
                         <td
-                          className="px-4 py-3 text-gray-600 max-w-[180px] truncate"
+                          className="px-4 py-3 text-gray-600 max-w-[180px] truncate border-r-2 border-gray-300"
                           title={classesStr}
                         >
-                          <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-medium">
+                          <span className="bg-green-50 text-green-700 px-2 py-0.5 rounded text-xs font-medium border border-green-200">
                             {classesStr}
                           </span>
                         </td>
 
                         {/* Status */}
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 border-r-2 border-gray-300">
                           <StatusBadge status={tutor.status} />
                         </td>
 
                         {/* Profile Completion */}
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 border-r-2 border-gray-300">
                           <span
                             className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                               tutor.isProfileComplete
@@ -554,7 +649,7 @@ export default function AdminTutorsPage() {
                             onClick={() =>
                               router.push(`/admin/users/tutors/${tutor._id}`)
                             }
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-medium text-xs transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-50 text-green-600 hover:bg-green-100 font-medium text-xs transition-colors border border-green-200"
                           >
                             <Eye size={14} /> View
                           </button>

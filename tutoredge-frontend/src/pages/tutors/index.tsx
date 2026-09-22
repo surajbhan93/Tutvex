@@ -29,6 +29,7 @@ import NavBar from "@/components/navbar/NavBar";
 import TutorFilterPanel from "@/components/filters/TutorFilterPanel";
 import TutorSearchHero from "@/components/tutors/TutorSearchHero";
 import ContactTutorModal from "@/components/tutors/ContactTutorModal";
+import MembershipBadge from "@/components/badges/MembershipBadge";
 
 import {
   filterTutors,
@@ -204,16 +205,29 @@ function TutorCard({
       <div className="px-5 pb-5 space-y-3 text-center flex-1 flex flex-col justify-between">
         <div>
           {/* Name & Verified Badge */}
-          <h3
-            className="flex items-center justify-center gap-1.5 text-base font-bold leading-snug text-slate-100"
-            style={{ fontFamily: "'Fraunces', serif" }}
-          >
-            {tutor.fullName || tutor.name || "Experienced Educator"}
-            <CheckCircle size={15} className="text-blue-400 flex-shrink-0" />
-          </h3>
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center justify-center gap-1.5">
+              <h3
+                className="text-base font-bold leading-snug text-slate-100"
+                style={{ fontFamily: "'Fraunces', serif" }}
+              >
+                {tutor.fullName || tutor.name || "Experienced Educator"}
+              </h3>
+              <CheckCircle size={15} className="text-blue-400 flex-shrink-0" />
+            </div>
+            
+            {/* Membership Badge */}
+            <MembershipBadge
+              membershipType={(tutor.membershipType as any) || "free"}
+              currentPlanSlug={(tutor.currentPlanSlug as any) || "free"}
+              revenueSharePercentage={tutor.revenueSharePercentage}
+              size="sm"
+              showLabel={true}
+            />
+          </div>
 
           {/* Headline */}
-          <p className="text-xs text-slate-400 mt-0.5 line-clamp-1 font-medium">
+          <p className="text-xs text-slate-400 mt-1.5 line-clamp-1 font-medium">
             {tutor.headline || "Experienced Subject Expert"}
           </p>
 

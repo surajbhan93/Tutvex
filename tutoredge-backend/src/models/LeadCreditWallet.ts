@@ -6,6 +6,9 @@ export interface ILeadCreditWallet extends Document {
   usedCredits: number;
   totalEarned: number;
   totalPurchased: number;
+  freeCreditsAvailable: number; // Free credits remaining
+  freeCreditsTotal: number; // Total free credits given (default 3)
+  purchasedCreditsAvailable: number; // Purchased credits remaining
   lastCreditAddedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
@@ -14,10 +17,13 @@ export interface ILeadCreditWallet extends Document {
 const LeadCreditWalletSchema = new Schema<ILeadCreditWallet>(
   {
     tutorId: { type: Schema.Types.ObjectId, ref: "User", required: true, unique: true },
-    availableCredits: { type: Number, required: true, default: 3 }, // Free 3 credits
+    availableCredits: { type: Number, required: true, default: 3 }, // Total available (free + purchased)
     usedCredits: { type: Number, required: true, default: 0 },
     totalEarned: { type: Number, required: true, default: 3 },
     totalPurchased: { type: Number, required: true, default: 0 },
+    freeCreditsAvailable: { type: Number, default: 3 }, // Free credits remaining
+    freeCreditsTotal: { type: Number, default: 3 }, // Total free credits given
+    purchasedCreditsAvailable: { type: Number, default: 0 }, // Purchased credits remaining
     lastCreditAddedAt: { type: Date },
   },
   { timestamps: true }

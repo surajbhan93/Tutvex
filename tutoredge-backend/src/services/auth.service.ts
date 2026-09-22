@@ -21,14 +21,20 @@ export class AuthService {
     }
 
     const adminUser = {
-      _id: "1",
+      id: "admin-1",
+      _id: "admin-1",
+      name: "Admin",
       username: config.ADMIN_USERNAME,
-      role: "admin"
+      email: "admin@tutvex.com",
+      role: "admin" as const
     };
 
-    const token = signJwt({ id: adminUser._id, role: adminUser.role });
+    const token = signJwt({ id: adminUser.id, role: adminUser.role });
 
-    return { token, user: adminUser };
+    const result = { user: adminUser, token };
+    console.log('Login admin result:', JSON.stringify(result, null, 2));
+    
+    return result;
   }
 
   // 🔹 Parent Signup
@@ -315,7 +321,7 @@ async getTutorApplications(status?: string, limit: number = 5) {
   const tutors = await User.find(query)
     .sort({ createdAt: -1 })
     .limit(limitValue)
-    .select("fullName email phone status createdAt location") // ✅ Added phone and location
+    .select("fullName email phone status createdAt location profileImage") // ✅ Added profileImage
     .lean();
 
   return tutors.map((t: any) => ({
@@ -327,6 +333,7 @@ async getTutorApplications(status?: string, limit: number = 5) {
     city: t.location?.city || t.city || "",
     state: t.location?.state || t.state || "",
     status: t.status,
+    profileImage: t.profileImage || "", // ✅ Added profileImage
     appliedDate:
       t.createdAt instanceof Date
         ? t.createdAt.toISOString()

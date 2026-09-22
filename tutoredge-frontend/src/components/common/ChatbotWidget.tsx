@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { askChatbot } from "@/lib/chatbot";
-
 import { getSessionId } from "@/utils/session";
 import QuickReplies from "./QuickReplies";
 import TypingIndicator from "./TypingIndicator";
+import { User } from "lucide-react";
 
 type Role = "guest" | "parent" | "student" | "tutor" | "admin";
 
@@ -70,6 +70,15 @@ export default function ChatbotWidget({
       else if (replyLower.includes("student")) setRole("student");
       else if (replyLower.includes("tutor")) setRole("tutor");
 
+      // Check if response contains tutor registration link
+      const hasTutorRegistration = res.reply.includes("tutor-registration") || 
+                                   res.reply.includes("/tutor-flow/tutor-registration");
+      
+      if (hasTutorRegistration) {
+        // Open registration in new tab
+        window.open("https://tutvex.com/tutor-flow/tutor-registration/?role=tutor&source=CHATBOT&campaign=BECOME_TUTOR", "_blank");
+      }
+
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: res.reply },
@@ -97,32 +106,76 @@ export default function ChatbotWidget({
 >
 
       {/* Header */}
-      <div className="flex items-center justify-between bg-green-500 text-white px-4 py-3 rounded-t-xl">
-        <span className="font-semibold">Tutvex Chat</span>
-        <button onClick={onClose}>✕</button>
+      <div className="flex items-center justify-between bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-t-xl shadow-md">
+        <div className="flex items-center gap-3">
+          {/* Agent Avatar */}
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md">
+            <span className="text-2xl">👩‍💼</span>
+          </div>
+          <div>
+            <span className="font-semibold text-lg block">Tutvex Support</span>
+            <span className="text-xs text-green-100 flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+              Online now
+            </span>
+          </div>
+        </div>
+        <button 
+          onClick={onClose}
+          className="hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors text-xl"
+        >
+          ✕
+        </button>
       </div>
 
       {/* Messages */}
       <div
-  className="flex-1 overflow-y-auto p-3 space-y-2"
+  className="flex-1 overflow-y-auto p-3 space-y-3"
   style={{ overscrollBehavior: "contain" }}
 >
 
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-              msg.sender === "user"
-                ? "ml-auto bg-green-500 text-white"
-                : "mr-auto bg-gray-100 text-gray-800"
+            className={`flex items-end gap-2 ${
+              msg.sender === "user" ? "flex-row-reverse" : "flex-row"
             }`}
           >
-            {msg.text}
+            {/* Icon */}
+            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+              msg.sender === "user" 
+                ? "bg-gradient-to-br from-blue-500 to-blue-600 shadow-md" 
+                : "bg-gradient-to-br from-green-100 to-green-200 shadow-md"
+            }`}>
+              {msg.sender === "user" ? (
+                <User className="w-5 h-5 text-white" />
+              ) : (
+                <div className="text-lg">👩‍💼</div>
+              )}
+            </div>
+            
+            {/* Message Bubble */}
+            <div
+              className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm whitespace-pre-line ${
+                msg.sender === "user"
+                  ? "bg-green-500 text-white rounded-br-sm"
+                  : "bg-gray-100 text-gray-800 rounded-bl-sm"
+              }`}
+            >
+              {msg.text}
+            </div>
           </div>
         ))}
 
         {/* 🤖 Typing Indicator */}
-        {isTyping && <TypingIndicator />}
+        {isTyping && (
+          <div className="flex items-end gap-2">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-100 to-green-200 shadow-md flex items-center justify-center">
+              <div className="text-lg">👩‍💼</div>
+            </div>
+            <TypingIndicator />
+          </div>
+        )}
 
         <div ref={messagesEndRef} />
       </div>

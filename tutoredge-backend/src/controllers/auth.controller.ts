@@ -8,7 +8,8 @@ export class AuthController {
     try {
       const { username, password } = req.body as any;
       const result = await authService.loginAdmin(username, password);
-      return reply.send(result);
+      console.log('Sending admin login response:', JSON.stringify(result, null, 2));
+      return reply.status(200).send(result);
     } catch (err: any) {
       return reply.status(400).send({ error: err.message });
     }

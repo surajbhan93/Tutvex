@@ -69,6 +69,9 @@ type Tutor = {
   teachingMode?: string;
   availability?: string[] | string;
   location?: TutorLocation;
+  membershipType?: string;
+  currentPlanSlug?: string;
+  revenueSharePercentage?: number;
 };
 
 type TutorProfileProps = {
@@ -406,6 +409,9 @@ apiClient
           rating={effectiveRating}
           totalStudents={tutor.totalStudents}
           isVerified={true}
+          membershipType={tutor.membershipType}
+          currentPlanSlug={tutor.currentPlanSlug}
+          revenueSharePercentage={tutor.revenueSharePercentage}
           onBookDemo={handleDemoClick}
           onWhatsApp={handleWhatsApp}
           onRequestCallback={handleRequestCallback}

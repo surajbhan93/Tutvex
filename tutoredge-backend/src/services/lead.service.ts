@@ -100,31 +100,41 @@ export class LeadService {
   /**
    * Get matched leads for a tutor with scoring
    */
+  /**
+   * Get matched leads for a tutor with scoring according to tutor city
+   */
   async getMatchedLeads(criteria: MatchingCriteria): Promise<LeadMatchScore[]> {
     const { tutorId } = criteria;
 
-    // Get tutor profile
-    const tutor = await User.findById(tutorId);
-    if (!tutor || tutor.role !== "tutor") {
-      throw new Error("Tutor not found");
+    let unlockedLeadIds: any[] = [];
+    let tutor: any = null;
+
+    if (tutorId) {
+      tutor = await User.findById(tutorId).catch(() => null);
+      unlockedLeadIds = await LeadUnlock.find({
+        tutorId: new Types.ObjectId(tutorId),
+      }).distinct("leadId");
     }
 
-    // Find leads that tutor hasn't unlocked yet
-    const unlockedLeadIds = await LeadUnlock.find({
-      tutorId: new Types.ObjectId(tutorId),
-    }).distinct("leadId");
-
-    // Build query
+    // Build query for active leads
     const query: any = {
-      status: { $in: ["new", "active"] },
-      expiryDate: { $gt: new Date() },
-      _id: { $nin: unlockedLeadIds },
-      totalUnlocks: { $lt: 10 }, // Ensure lead not fully unlocked
+      status: { $ne: "closed" },
     };
 
-    // Location filter
-    if (criteria.location?.city) {
-      query["location.city"] = new RegExp(criteria.location.city, "i");
+    if (unlockedLeadIds && unlockedLeadIds.length > 0) {
+      query._id = { $nin: unlockedLeadIds };
+    }
+
+    // Location filter - auto-detect tutor city
+    const tutorCity = criteria.location?.city || tutor?.location?.city || tutor?.city;
+
+    if (tutorCity && tutorCity.trim() !== "") {
+      const cleanCity = tutorCity.trim();
+      if (/prayagraj|allahabad/i.test(cleanCity)) {
+        query["location.city"] = new RegExp("prayagraj|allahabad", "i");
+      } else {
+        query["location.city"] = new RegExp(cleanCity, "i");
+      }
     }
 
     // Subject filter
@@ -132,7 +142,21 @@ export class LeadService {
       query.subject = { $in: criteria.subjects.map((s) => new RegExp(s, "i")) };
     }
 
-    const leads = await StudentLead.find(query).sort({ createdAt: -1 }).limit(50);
+    let leads = await StudentLead.find(query).sort({ createdAt: -1 }).limit(100);
+
+    // Fallback 1: If no leads found with city/subject filter, relax city/subject filter
+    if (leads.length === 0) {
+      const fallbackQuery: any = { status: { $ne: "closed" } };
+      if (unlockedLeadIds && unlockedLeadIds.length > 0) {
+        fallbackQuery._id = { $nin: unlockedLeadIds };
+      }
+      leads = await StudentLead.find(fallbackQuery).sort({ createdAt: -1 }).limit(100);
+    }
+
+    // Fallback 2: If still no leads found (all unlocked), return all active leads
+    if (leads.length === 0) {
+      leads = await StudentLead.find({ status: { $ne: "closed" } }).sort({ createdAt: -1 }).limit(100);
+    }
 
     // Calculate match scores
     const matchedLeads: LeadMatchScore[] = leads.map((lead) => {
@@ -140,8 +164,8 @@ export class LeadService {
       return { lead, matchScore, reasons };
     });
 
-    // Filter by minimum score (60) and sort by score
-    return matchedLeads.filter((m) => m.matchScore >= 60).sort((a, b) => b.matchScore - a.matchScore);
+    // Sort by match score descending and return
+    return matchedLeads.sort((a, b) => b.matchScore - a.matchScore);
   }
 
   /**
@@ -152,56 +176,44 @@ export class LeadService {
     tutor: any,
     criteria: MatchingCriteria
   ): { matchScore: number; reasons: string[] } {
-    let score = lead.qualityScore; // Start with lead quality
+    let score = 80; // Base match score
     const reasons: string[] = [];
 
-    // Subject match (if tutor has subjects field)
-    if (tutor.subjects && Array.isArray(tutor.subjects)) {
-      const subjectMatch = tutor.subjects.some((s: string) =>
-        lead.subject.toLowerCase().includes(s.toLowerCase())
-      );
-      if (subjectMatch) {
-        score += 20;
-        reasons.push("Subject match");
-      } else {
-        score -= 10;
+    const tutorCity = criteria.location?.city || tutor.location?.city || tutor.city;
+    if (tutorCity && lead.location?.city) {
+      if (
+        tutorCity.toLowerCase() === lead.location.city.toLowerCase() ||
+        (/prayagraj|allahabad/i.test(tutorCity) && /prayagraj|allahabad/i.test(lead.location.city))
+      ) {
+        score += 15;
+        reasons.push(`In your city (${lead.location.city})`);
       }
     }
 
-    // Location match
-    if (tutor.location?.city && lead.location?.city) {
-      if (tutor.location.city.toLowerCase() === lead.location.city.toLowerCase()) {
-        score += 15;
-        reasons.push("Same city");
+    // Subject match (if tutor has subjects field)
+    if (tutor.subjects && Array.isArray(tutor.subjects) && tutor.subjects.length > 0) {
+      const subjectMatch = tutor.subjects.some((s: string) =>
+        lead.subject.toLowerCase().includes(s.toLowerCase()) ||
+        s.toLowerCase().includes(lead.subject.toLowerCase())
+      );
+      if (subjectMatch) {
+        score += 10;
+        reasons.push("Subject matches your expertise");
       }
+    } else {
+      reasons.push("Location in your service area");
     }
 
     // Teaching mode match
-    if (tutor.teachingMode) {
+    if (tutor.teachingMode && lead.teachingMode) {
       if (
         lead.teachingMode === tutor.teachingMode ||
         lead.teachingMode === "hybrid" ||
         tutor.teachingMode === "hybrid"
       ) {
-        score += 10;
+        score += 5;
         reasons.push("Teaching mode compatible");
       }
-    }
-
-    // Budget consideration
-    if (lead.budget && tutor.expectedFee) {
-      if (lead.budget >= tutor.expectedFee * 0.8) {
-        score += 10;
-        reasons.push("Budget matches expectations");
-      } else {
-        score -= 5;
-      }
-    }
-
-    // Urgency bonus
-    if (lead.urgency === "immediate") {
-      score += 5;
-      reasons.push("Urgent requirement");
     }
 
     return { matchScore: Math.min(score, 100), reasons };
@@ -214,6 +226,11 @@ export class LeadService {
     const lead = await StudentLead.findById(leadId);
     if (!lead) {
       throw new Error("Lead not found");
+    }
+
+    // Check if lead is available for unlocking
+    if (lead.availability === "already_filled") {
+      throw new Error("This lead is already filled and cannot be unlocked");
     }
 
     if (lead.status === "closed" || lead.status === "expired") {
@@ -244,7 +261,22 @@ export class LeadService {
       throw new Error("Insufficient credits. Please purchase more credits.");
     }
 
-    // Deduct credits
+    // Deduct credits (free first, then purchased)
+    let creditsToDeduct = lead.creditsRequired;
+    let freeCreditsUsed = 0;
+    let purchasedCreditsUsed = 0;
+
+    if (wallet.freeCreditsAvailable && wallet.freeCreditsAvailable > 0) {
+      freeCreditsUsed = Math.min(creditsToDeduct, wallet.freeCreditsAvailable);
+      wallet.freeCreditsAvailable -= freeCreditsUsed;
+      creditsToDeduct -= freeCreditsUsed;
+    }
+
+    if (creditsToDeduct > 0) {
+      purchasedCreditsUsed = creditsToDeduct;
+      wallet.purchasedCreditsAvailable = (wallet.purchasedCreditsAvailable || 0) - purchasedCreditsUsed;
+    }
+
     wallet.availableCredits -= lead.creditsRequired;
     wallet.usedCredits += lead.creditsRequired;
     await wallet.save();
@@ -417,8 +449,16 @@ export class LeadService {
       return String(lead.parentId) === String(userId);
     }
 
-    // Tutor can only view leads they unlocked
+    // Tutor can view:
+    // 1. Any "new" lead in the marketplace (without parent contact)
+    // 2. Leads they have unlocked (with parent contact)
     if (userRole === "tutor") {
+      // Allow access to new/active marketplace leads
+      if (lead.status === "new" || lead.status === "active") {
+        return true;
+      }
+      
+      // Check if tutor has unlocked this lead
       const unlock = await LeadUnlock.findOne({
         tutorId: new Types.ObjectId(userId),
         leadId: new Types.ObjectId(leadId),
@@ -481,6 +521,122 @@ export class LeadService {
       .sort({ createdAt: -1 })
       .limit(100);
   }
+
+  /**
+   * Request contact access for unlocked lead
+   */
+  async requestContactAccess(leadId: string, tutorId: string): Promise<ILeadUnlock> {
+    console.log("🔵 requestContactAccess called:", { leadId, tutorId });
+    
+    // Find the unlock record
+    const unlock = await LeadUnlock.findOne({
+      leadId: new Types.ObjectId(leadId),
+      tutorId: new Types.ObjectId(tutorId),
+    });
+
+    console.log("🔍 Unlock found:", unlock ? "YES" : "NO");
+
+    if (!unlock) {
+      throw new Error("Lead not unlocked. Please unlock the lead first.");
+    }
+
+    if (unlock.contactAccessRequested) {
+      if (unlock.contactAccessGranted) {
+        throw new Error("Contact access already granted");
+      }
+      throw new Error("Contact access request already pending");
+    }
+
+    // Mark as requested
+    unlock.contactAccessRequested = true;
+    unlock.contactAccessRequestedAt = new Date();
+    await unlock.save();
+
+    console.log("✅ Contact access marked as requested");
+
+    return unlock;
+  }
+
+  /**
+   * Admin: Grant or deny contact access
+   */
+  async updateContactAccess(
+    leadId: string,
+    tutorId: string,
+    adminId: string,
+    granted: boolean,
+    notes?: string
+  ): Promise<ILeadUnlock> {
+    // Validate ObjectIds before conversion
+    console.log('[Contact Access] Received params:', { leadId, tutorId, adminId });
+    
+    if (!Types.ObjectId.isValid(leadId)) {
+      throw new Error(`Invalid leadId format: ${leadId}`);
+    }
+    if (!Types.ObjectId.isValid(tutorId)) {
+      throw new Error(`Invalid tutorId format: ${tutorId}`);
+    }
+
+    const unlock = await LeadUnlock.findOne({
+      leadId: new Types.ObjectId(leadId),
+      tutorId: new Types.ObjectId(tutorId),
+    });
+
+    if (!unlock) {
+      throw new Error("Unlock record not found");
+    }
+
+    if (!unlock.contactAccessRequested) {
+      throw new Error("No contact access request found");
+    }
+
+    unlock.contactAccessGranted = granted;
+    unlock.contactAccessGrantedAt = new Date();
+    
+    // Handle adminId: convert to ObjectId only if valid, otherwise store as-is
+    // This handles legacy admin IDs like "admin-1"
+    if (Types.ObjectId.isValid(adminId)) {
+      unlock.contactAccessGrantedBy = new Types.ObjectId(adminId);
+    } else {
+      // For non-ObjectId admin IDs, we'll store null and add to notes
+      unlock.contactAccessGrantedBy = undefined as any;
+      console.log(`[Contact Access] Warning: adminId "${adminId}" is not a valid ObjectId, storing in notes`);
+    }
+    
+    unlock.contactAccessNotes = notes ? `${notes} (Admin ID: ${adminId})` : `Admin ID: ${adminId}`;
+    await unlock.save();
+
+    console.log('[Contact Access] Successfully updated:', { 
+      unlockId: unlock._id,
+      granted,
+      adminId 
+    });
+
+    return unlock;
+  }
+
+  /**
+   * Get pending contact access requests (Admin)
+   */
+  async getPendingContactAccessRequests(): Promise<any[]> {
+    const unlocks = await LeadUnlock.find({
+      contactAccessRequested: true,
+      contactAccessGranted: false,
+    })
+      .populate("tutorId", "fullName email phone")
+      .populate("leadId")
+      .sort({ contactAccessRequestedAt: -1 })
+      .limit(50);
+
+    return unlocks.map((unlock: any) => ({
+      unlockId: unlock._id,
+      lead: unlock.leadId,
+      tutor: unlock.tutorId,
+      requestedAt: unlock.contactAccessRequestedAt,
+      notes: unlock.contactAccessNotes,
+    }));
+  }
 }
+
 
 export default new LeadService();

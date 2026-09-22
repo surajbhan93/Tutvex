@@ -8,6 +8,9 @@ export type TeachingMode = "online" | "offline" | "hybrid";
 export type Availability = "weekdays" | "weekends" | "flexible";
 export type Gender = "male" | "female" | "other" | "prefer_not_to_say";
 
+// Membership types for tutors
+export type MembershipType = "free" | "subscription" | "revenue_share";
+
 export interface TutorLocation {
   city?: string;
   state?: string;
@@ -76,6 +79,12 @@ location?: TutorLocation;
   lastActiveAt?: Date;
 
   isProfileComplete?: boolean;
+
+  // Membership & Subscription
+  membershipType?: MembershipType; // "free", "subscription", "revenue_share"
+  currentPlanSlug?: string; // "free", "starter", "pro", "premium"
+  subscriptionPriority?: number; // Higher = better priority (0-100)
+  revenueSharePercentage?: number; // 50 for first month
 
 //  documents 
 
@@ -211,7 +220,21 @@ isDocumentsVerified: { type: Boolean, default: false },
     profileViews: { type: Number, default: 0 },
     lastActiveAt: Date,
 
-    isProfileComplete: { type: Boolean, default: false }
+    isProfileComplete: { type: Boolean, default: false },
+
+    // 🔹 Membership & Subscription
+    membershipType: {
+      type: String,
+      enum: ["free", "subscription", "revenue_share"],
+      default: "free"
+    },
+    currentPlanSlug: {
+      type: String,
+      enum: ["free", "starter", "pro", "premium"],
+      default: "free"
+    },
+    subscriptionPriority: { type: Number, default: 0 }, // 0-100 scale
+    revenueSharePercentage: { type: Number, default: 0 }
   },
   { timestamps: true }
 );

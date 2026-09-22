@@ -1,6 +1,7 @@
 
 import React from "react";
 import Sidebar from "./Sidebar";
+import { useFCMForegroundNotifications } from "@/hooks/useFCMForegroundNotifications";
 
 type TutorDashboardLayoutProps = {
   children: React.ReactNode;
@@ -9,6 +10,9 @@ type TutorDashboardLayoutProps = {
 const TutorDashboardLayout: React.FC<TutorDashboardLayoutProps> = ({
   children,
 }) => {
+  // Setup foreground notification listener
+  useFCMForegroundNotifications();
+
   return (
     <div className="flex min-h-screen w-full bg-gray-50 font-sans">
       <Sidebar />

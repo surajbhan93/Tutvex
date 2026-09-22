@@ -271,7 +271,18 @@ export class WalletService {
         usedCredits: 0,
         totalEarned: 3,
         totalPurchased: 0,
+        freeCreditsAvailable: 3,
+        freeCreditsTotal: 3,
+        purchasedCreditsAvailable: 0,
       });
+    }
+
+    // Migration: Set free credits if not set (for existing wallets)
+    if (wallet.freeCreditsTotal === undefined || wallet.freeCreditsTotal === null) {
+      wallet.freeCreditsTotal = 3;
+      wallet.freeCreditsAvailable = Math.min(wallet.availableCredits, 3);
+      wallet.purchasedCreditsAvailable = Math.max(0, wallet.availableCredits - wallet.freeCreditsAvailable);
+      await wallet.save();
     }
 
     return wallet;
@@ -307,6 +318,7 @@ export class WalletService {
 
     wallet.availableCredits += credits;
     wallet.totalPurchased += credits;
+    wallet.purchasedCreditsAvailable = (wallet.purchasedCreditsAvailable || 0) + credits;
     wallet.lastCreditAddedAt = new Date();
     await wallet.save();
 
@@ -368,10 +380,13 @@ export class WalletService {
         totalCommissionPaid: wallet.totalCommissionPaid,
       },
       credits: {
-        available: creditWallet.availableCredits,
-        used: creditWallet.usedCredits,
+        availableCredits: creditWallet.availableCredits,
+        usedCredits: creditWallet.usedCredits,
         totalEarned: creditWallet.totalEarned,
         totalPurchased: creditWallet.totalPurchased,
+        freeCreditsAvailable: creditWallet.freeCreditsAvailable || 0,
+        freeCreditsTotal: creditWallet.freeCreditsTotal || 3,
+        purchasedCreditsAvailable: creditWallet.purchasedCreditsAvailable || 0,
       },
       conversions: {
         active: activeConversions,

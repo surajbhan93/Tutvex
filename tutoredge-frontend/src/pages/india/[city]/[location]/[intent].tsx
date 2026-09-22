@@ -1,7 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 import { CITY_MAP } from "@/components/seoIndia/cities";
 import { INTENTS } from "@/components/seoIndia/intents";
@@ -23,53 +22,71 @@ import {
   PhoneCall,
 } from "lucide-react"
 import { motion } from "framer-motion";
-// import { city } from "@/components/seoIndia/locations/up/lucknow";
 
 interface PageProps {
-  city: string;
-  location: string;
-  intent: string;
+  citySlug: string;
+  cityName: string;
+  locationSlug: string;
+  locationName: string;
+  intentSlug: string;
+  intentName: string;
+  notFound?: boolean;
+}
+
+/* ===============================
+   VALIDATION HELPER
+================================ */
+function isValidIndiaCombination(city: string, location: string, intent: string): boolean {
+  const cityData = CITY_MAP[city];
+  if (!cityData) return false;
+
+  // Check if location slug exists (support both string and object formats)
+  const validLocationSlugs = cityData.locations.map((l: any) => 
+    typeof l === 'string' ? l.toLowerCase().replace(/\s+/g, '-') : l.slug
+  );
+  if (!validLocationSlugs.includes(location)) return false;
+
+  // Check if intent slug exists (support both string and object formats)
+  const allIntents = Object.values(INTENTS).flat();
+  const intentExists = allIntents.some((validIntent: any) =>
+    (typeof validIntent === 'string' 
+      ? validIntent.toLowerCase().replace(/\s+/g, '-')
+      : validIntent.slug) === intent
+  );
+
+  return intentExists;
 }
 
 export default function IndiaCityAutoPage({
-  city,
-  location,
-  intent,
+  citySlug,
+  cityName,
+  locationSlug,
+  locationName,
+  intentSlug,
+  intentName,
+  notFound,
 }: PageProps) {
-  const router = useRouter();
-  const cityData = CITY_MAP[city];
+  const cityData = CITY_MAP[citySlug];
 
-  // ❌ Invalid city → 404
-  if (!cityData) {
-    if (typeof window !== "undefined") router.replace("/404");
+  // Server-side validation handled - this won't render
+  if (notFound || !cityData) {
     return null;
   }
 
-  // ❌ Invalid location → 404
- const validLocations = cityData.locations.map((l: any) =>
-  l.slug.toLowerCase()
-);
-
-  if (!validLocations.includes(location.toLowerCase())) {
-    if (typeof window !== "undefined") router.replace("/404");
-    return null;
-  }
-
-  const intentLower = intent.toLowerCase();
-  const formattedIntent =
-    intent.charAt(0).toUpperCase() + intent.slice(1);
+  const intentLower = intentSlug.toLowerCase();
+  const formattedIntent = intentName; // Already formatted from config
 
   // 🔥 CTA LOGIC (same as Allahabad)
   const isFindTutor =
-    intentLower.includes("home tutor") ||
-    intentLower.includes("home tuition") ||
-    intentLower.includes("private tutor") ||
-    intentLower.includes("tutor near");
+    intentLower.includes("home-tutor") ||
+    intentLower.includes("home-tuition") ||
+    intentLower.includes("private-tutor") ||
+    intentLower.includes("tutor-near");
 
   const isBecomeTutor =
-    intentLower.includes("become tutor") ||
-    intentLower.includes("tutor job") ||
-    intentLower.includes("teaching job");
+    intentLower.includes("become-tutor") ||
+    intentLower.includes("tutor-job") ||
+    intentLower.includes("teaching-job");
 
   const primaryCTA = isFindTutor
     ? {
@@ -86,8 +103,8 @@ export default function IndiaCityAutoPage({
         href: "/tutors/",
       };
 
-  const title = `${formattedIntent} in ${location}, ${cityData.name} | Verified Tutors`;
-  const description = `Find ${formattedIntent} in ${location}, ${cityData.name}. Hire verified tutors for home and online tuition.`;
+  const title = `${intentName} in ${locationName}, ${cityName} | Verified Tutors`;
+  const description = `Find ${intentName} in ${locationName}, ${cityName}. Hire verified tutors for home and online tuition.`;
 
   return (
     <>
@@ -98,21 +115,25 @@ export default function IndiaCityAutoPage({
         <meta name="description" content={description} />
         <link
           rel="canonical"
-          href={`https://yourdomain.com/india/${city}/${location}/${intent}`}
+          href={`https://tutvex.com/india/${citySlug}/${locationSlug}/${intentSlug}`}
         />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={`https://tutvex.com/india/${citySlug}/${locationSlug}/${intentSlug}`} />
+        <meta property="og:type" content="website" />
       </Head>
 
       <BreadcrumbSchema
-        city={city}
-        cityName={cityData.name}
-        location={location}
-        intent={formattedIntent}
+        city={citySlug}
+        cityName={cityName}
+        location={locationName}
+        intent={intentName}
       />
     
        <LocalBusinessSchema
-          city={city}
+          city={citySlug}
           cityName={cityData.name}
-          location={location}
+          location={locationName}
         />
 
 
@@ -169,109 +190,7 @@ export default function IndiaCityAutoPage({
         >
           {primaryCTA.text}
         </Link>
-
-        <Link
-          href="/tutors/"
-          className="bg-white/10 backdrop-blur border border-white/30 px-8 py-4 rounded-2xl font-semibold hover:bg-white hover:text-indigo-700 transition"
-        >
-          Browse Tutors
-        </Link>
       </motion.div>
-    </div>
-  </section>
-
-  {/* ================= CONTENT ================= */}
-  <section className="max-w-6xl mx-auto px-6 py-10">
-    <p className="text-gray-700 text-lg">
-  {INTENT_CONTENT[intent]?.intro
-    ?.replace("{location}", location)
-    ?.replace("{cityData}", cityData)}
-</p>
-
-
-{LOCATION_SNIPPETS[location.toLowerCase().replace(/\s+/g, "-")] && (
-  <p className="mt-4 text-gray-600">
-    {LOCATION_SNIPPETS[location.toLowerCase().replace(/\s+/g, "-")]}
-  </p>
-)}
-<ul className="mt-6 list-disc pl-6">
-  {INTENT_CONTENT[intent]?.benefits.map((b) => (
-    <li key={b}>{b}</li>
-  ))}
-</ul>
-
-
-
-    {/* ================= SUBJECTS ================= */}
-    <h2 className="mt-16 text-3xl md:text-4xl font-extrabold text-gray-900">
-      Subjects Available
-    </h2>
-
-    <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-      {SUBJECTS.map((sub, i) => (
-        <motion.div
-          key={sub}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.04 }}
-          viewport={{ once: true }}
-          className="group bg-white/70 backdrop-blur-xl border border-indigo-100 rounded-3xl px-5 py-6 shadow-md hover:shadow-xl hover:-translate-y-2 transition"
-        >
-          <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-50 mb-3 group-hover:bg-indigo-100 transition">
-            <BookOpen className="text-indigo-600" size={20} />
-          </div>
-          <div className="font-semibold text-gray-800">
-            {sub} tutor in {location}
-          </div>
-        </motion.div>
-      ))}
-    </div>
-
-  {/* ================= RELATED SEARCHES ================= */}
-<h2 className="mt-20 text-2xl font-bold text-gray-900">
-  Related Searches in {cityData.name}
-</h2>
-
-<div className="mt-8 grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-{cityData.locations.slice(0, 6).map((area: any) => (
-  <Link
-    key={area.slug}
-    href={`/india/${city}/${area.slug}/${intent
-      .toLowerCase()
-      .replace(/\s+/g, "-")}`}
-  >
-    {intent} in {area.name}, {cityData.name}
-  </Link>
-))}
-</div>
-
-
-    {/* ================= WHY US ================= */}
-    <h2 className="mt-24 text-3xl md:text-4xl font-extrabold text-gray-900">
-      Why Choose Our Tutors?
-    </h2>
-
-    <div className="mt-12 grid md:grid-cols-2 gap-8">
-      {[
-        { icon: ShieldCheck, text: "Verified & background-checked tutors" },
-        { icon: Laptop, text: "Home & online tuition options" },
-        { icon: CheckCircle, text: `Tutors available near ${location}` },
-        { icon: Wallet, text: "Affordable & flexible fees" },
-      ].map((item, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.12 }}
-          viewport={{ once: true }}
-          className="flex items-center gap-5 bg-gradient-to-r from-white to-indigo-50 border border-indigo-100 rounded-3xl p-7 shadow-md hover:shadow-xl transition"
-        >
-          <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center">
-            <item.icon className="text-indigo-600" size={26} />
-          </div>
-          <span className="text-gray-800 font-semibold">{item.text}</span>
-        </motion.div>
-      ))}
     </div>
   </section>
 
@@ -297,7 +216,7 @@ export default function IndiaCityAutoPage({
 
     <FAQSchema
           cityName={cityData.name}
-          location={location}
+          location={locationName}
           intent={formattedIntent}
         />
       {/* FOOTER */}
@@ -313,15 +232,16 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const paths: any[] = [];
 
   Object.values(CITY_MAP).forEach((city: any) => {
-  city.locations.forEach((location: any) => {
+    city.locations.forEach((location: any) => {
+      const slug =
+        typeof location === "string"
+          ? location.toLowerCase().replace(/\s+/g, "-")
+          : location.slug;
 
-    const slug =
-      typeof location === "string"
-        ? location.toLowerCase().replace(/\s+/g, "-")
-        : location.slug;
-
-    Object.values(INTENTS).forEach((intentGroup) => {
-      intentGroup.forEach((intent: string) => {
+      // Flatten all intents
+      const allIntents = Object.values(INTENTS).flat();
+      
+      allIntents.forEach((intent: string) => {
         paths.push({
           params: {
             city: city.slug,
@@ -332,20 +252,63 @@ export const getStaticPaths: GetStaticPaths = async () => {
       });
     });
   });
-});
+
+  console.log(`Generated ${paths.length} static paths for /india/[city]/[location]/[intent]`);
+
   return {
     paths,
-    fallback: "blocking",
+    fallback: false, // Changed from "blocking" to false - invalid URLs will get proper 404
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const citySlug = params?.city?.toString() || '';
+  const locationSlug = params?.location?.toString() || '';
+  const intentSlug = params?.intent?.toString() || '';
+
+  // Validate the combination
+  if (!isValidIndiaCombination(citySlug, locationSlug, intentSlug)) {
+    return {
+      notFound: true, // Returns proper 404 HTTP status
+    };
+  }
+
+  // Get city data
+  const cityData = CITY_MAP[citySlug];
+  if (!cityData) {
+    return { notFound: true };
+  }
+
+  // Find location name from slug
+  const locationData = cityData.locations.find((loc: any) =>
+    (typeof loc === 'string' 
+      ? loc.toLowerCase().replace(/\s+/g, '-')
+      : loc.slug) === locationSlug
+  );
+  const locationName = typeof locationData === 'string' 
+    ? locationData 
+    : locationData?.name || locationSlug;
+
+  // Find intent name from slug
+  const allIntents = Object.values(INTENTS).flat();
+  const intentData = allIntents.find((intent: any) =>
+    (typeof intent === 'string'
+      ? intent.toLowerCase().replace(/\s+/g, '-')
+      : intent.slug) === intentSlug
+  );
+  const intentName = typeof intentData === 'string'
+    ? intentData
+    : (intentData as any)?.name || intentSlug;
+
   return {
     props: {
-      city: params?.city?.toString(),
-      location: params?.location?.toString().replace(/-/g, " "),
-      intent: params?.intent?.toString().replace(/-/g, " "),
+      citySlug,
+      cityName: cityData.name,
+      locationSlug,
+      locationName,
+      intentSlug,
+      intentName,
     },
-    revalidate: 86400,
+    revalidate: 86400, // 24 hours
   };
 };
