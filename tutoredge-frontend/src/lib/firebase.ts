@@ -37,53 +37,82 @@ if (typeof window !== 'undefined') {
  */
 export const requestNotificationPermission = async (): Promise<string | null> => {
   try {
+    console.log('🔔 Starting notification permission request...');
+
     // Check if browser supports notifications
     if (!('Notification' in window)) {
-      console.log('This browser does not support notifications');
-      return null;
+      console.error('❌ Browser does not support notifications');
+      throw new Error('This browser does not support notifications');
     }
 
     // Check if service worker is supported
     if (!('serviceWorker' in navigator)) {
-      console.log('Service Worker is not supported');
-      return null;
+      console.error('❌ Service Worker is not supported');
+      throw new Error('Service Worker is not supported in this browser');
     }
+
+    // Check current permission state
+    console.log('📋 Current notification permission:', Notification.permission);
 
     // Request permission
+    console.log('🙋 Requesting notification permission...');
     const permission = await Notification.requestPermission();
+    console.log('✅ Permission result:', permission);
     
     if (permission !== 'granted') {
-      console.log('Notification permission denied');
-      return null;
+      console.warn('⚠️ Notification permission not granted:', permission);
+      throw new Error(`Notification permission ${permission}. Please enable notifications in your browser settings.`);
     }
 
-    console.log('Notification permission granted');
+    console.log('✅ Notification permission granted!');
 
     // Register service worker
+    console.log('📝 Registering service worker...');
     const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    console.log('Service Worker registered:', registration);
+    console.log('✅ Service Worker registered:', registration.scope);
+
+    // Wait for service worker to be ready
+    await navigator.serviceWorker.ready;
+    console.log('✅ Service Worker is ready');
 
     // Get FCM token
     if (!messaging) {
-      console.error('Messaging not initialized');
-      return null;
+      console.error('❌ Firebase Messaging not initialized');
+      throw new Error('Firebase Messaging could not be initialized. Check your Firebase configuration.');
     }
 
+    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+    if (!vapidKey) {
+      console.error('❌ VAPID key is missing');
+      throw new Error('Firebase VAPID key is not configured');
+    }
+
+    console.log('🔑 Getting FCM token with VAPID key...');
     const token = await getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+      vapidKey: vapidKey,
       serviceWorkerRegistration: registration,
     });
 
     if (token) {
-      console.log('FCM Token:', token);
+      console.log('✅ FCM Token received:', token.substring(0, 20) + '...');
       return token;
     } else {
-      console.log('No registration token available');
-      return null;
+      console.error('❌ No FCM token received');
+      throw new Error('Failed to get FCM token. Please try again.');
     }
-  } catch (error) {
-    console.error('Error getting notification permission:', error);
-    return null;
+  } catch (error: any) {
+    console.error('❌ Error in requestNotificationPermission:', error);
+    
+    // Provide more specific error messages
+    if (error.code === 'messaging/permission-blocked') {
+      throw new Error('Notifications are blocked. Please enable them in your browser settings.');
+    } else if (error.code === 'messaging/unsupported-browser') {
+      throw new Error('Your browser does not support notifications.');
+    } else if (error.code === 'messaging/token-subscribe-failed') {
+      throw new Error('Failed to subscribe to notifications. Please check your internet connection.');
+    }
+    
+    throw error;
   }
 };
 

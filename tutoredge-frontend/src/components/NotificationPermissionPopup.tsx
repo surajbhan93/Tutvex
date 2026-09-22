@@ -49,32 +49,36 @@ const NotificationPermissionPopup = () => {
       // Request permission and get FCM token
       const fcmToken = await requestNotificationPermission();
       
-      if (fcmToken) {
-        // Save token to backend
-        try {
-          await api.post('/notifications/register-token', { 
-            token: fcmToken,
-            platform: 'web',
-            browser: navigator.userAgent,
-          });
-          
-          toast.success('🔔 Notifications enabled! You\'ll receive updates about your leads.');
-          setShowPopup(false);
-          
-          // Clear dismissed flag
-          localStorage.removeItem('notification-popup-dismissed');
-        } catch (error: any) {
-          console.error('Error saving FCM token:', error);
-          // Still close popup even if backend save fails
-          toast.success('Notifications enabled locally');
-          setShowPopup(false);
-        }
-      } else {
-        toast.error('Failed to enable notifications. Please check browser settings.');
+      // Save token to backend
+      try {
+        await api.post('/notifications/register-token', { 
+          token: fcmToken,
+          platform: 'web',
+          browser: navigator.userAgent,
+        });
+        
+        toast.success('🔔 Notifications enabled! You\'ll receive updates about your leads.');
+        setShowPopup(false);
+        
+        // Clear dismissed flag
+        localStorage.removeItem('notification-popup-dismissed');
+      } catch (error: any) {
+        console.error('Error saving FCM token:', error);
+        // Still close popup even if backend save fails
+        toast.success('Notifications enabled locally');
+        setShowPopup(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error enabling notifications:', error);
-      toast.error('Failed to enable notifications');
+      
+      // Show user-friendly error message
+      const errorMessage = error.message || 'Failed to enable notifications. Please check browser settings.';
+      toast.error(errorMessage, {
+        duration: 5000,
+        style: {
+          maxWidth: '500px',
+        },
+      });
     } finally {
       setLoading(false);
     }
