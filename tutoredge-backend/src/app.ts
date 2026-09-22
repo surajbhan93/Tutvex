@@ -34,6 +34,7 @@ import analyticsRoutes from "./routes/analytics.routes";
 import webhookRoutes from "./routes/webhook.routes";
 import notificationRoutes from "./routes/notification.routes";
 import adminMonetizationRoutes from "./routes/adminMonetization.routes";
+import healthRoutes from "./routes/health.routes";
 import { initializeFirebaseAdmin } from "./config/firebaseAdmin";
 
 // Initialize Firebase Admin SDK for FCM Push Notifications
@@ -135,6 +136,7 @@ async function buildApp() {
 
 
   // Routes DemoLead
+  app.register(healthRoutes, { prefix: "/api/v1" });
   app.register(DemoLead, { prefix: "/api/v1" });
     app.register(adminRoutes, { prefix: "/api/v1" });
 app.register(contactRoutes, { prefix: "/api/v1" });
