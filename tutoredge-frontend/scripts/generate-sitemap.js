@@ -22,6 +22,7 @@ import {
   LUCKNOW_LOCATIONS,
   KANPUR_LOCATIONS,
   GURUGRAM_LOCATIONS,
+  DELHI_LOCATIONS,
   INTENTS as OLD_INTENTS,
 } from "../src/components/seo/seo.config.node.js";
 
@@ -131,7 +132,38 @@ GURUGRAM_AREAS.forEach((area) => {
 });
 
 /* ===============================
-   🔥 5. SEO INDIA (NEW)
+   🔥 5. DELHI SEO PAGES (NEW)
+   Main city page + 15 area pages
+================================ */
+
+// Main Delhi city page
+urls.push(`${BASE_URL}/delhi`);
+
+// Delhi area pages
+const DELHI_AREAS = [
+  'south-delhi',
+  'north-delhi',
+  'west-delhi',
+  'east-delhi',
+  'central-delhi',
+  'rohini',
+  'dwarka',
+  'north-west-delhi',
+  'south-west-delhi',
+  'janakpuri',
+  'laxmi-nagar',
+  'saket',
+  'greater-kailash',
+  'mayur-vihar',
+  'karol-bagh'
+];
+
+DELHI_AREAS.forEach((area) => {
+  urls.push(`${BASE_URL}/delhi/${area}`);
+});
+
+/* ===============================
+   🔥 6. SEO INDIA (NEW)
    /india/{city}/{location}/{intent}
 ================================ */
 

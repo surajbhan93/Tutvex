@@ -344,6 +344,124 @@ export const GURUGRAM_LOCATIONS = [
   "Sector 95", "Sector 102", "Sector 103",
 ];
 
+export const DELHI_LOCATIONS = [
+  // Main City
+  "Delhi",
+  "New Delhi",
+  "Delhi NCR",
+
+  // South Delhi
+  "South Delhi",
+  "Saket",
+  "Greater Kailash",
+  "GK-1",
+  "GK-2",
+  "Hauz Khas",
+  "Malviya Nagar",
+  "Vasant Kunj",
+  "Vasant Vihar",
+  "Defence Colony",
+  "Green Park",
+  "Panchsheel Park",
+  "Chirag Delhi",
+  "Kalkaji",
+  "Nehru Place",
+  "Chittaranjan Park",
+  "South Extension",
+  "Safdarjung Enclave",
+  "RK Puram",
+  "Munirka",
+  "Hauz Rani",
+
+  // North Delhi
+  "North Delhi",
+  "Model Town",
+  "Civil Lines",
+  "Mukherjee Nagar",
+  "Kamla Nagar",
+  "GTB Nagar",
+  "Vijay Nagar",
+  "Hudson Lane",
+  "Shakti Nagar",
+
+  // West Delhi
+  "West Delhi",
+  "Janakpuri",
+  "Rajouri Garden",
+  "Punjabi Bagh",
+  "Tilak Nagar",
+  "Subhash Nagar",
+  "Tagore Garden",
+  "Paschim Vihar",
+  "Vikaspuri",
+  "Uttam Nagar",
+
+  // East Delhi
+  "East Delhi",
+  "Preet Vihar",
+  "Laxmi Nagar",
+  "Shakarpur",
+  "Nirman Vihar",
+  "Anand Vihar",
+  "IP Extension",
+  "Patparganj",
+  "Mayur Vihar",
+  "Mayur Vihar Phase 1",
+  "Mayur Vihar Phase 2",
+  "Mayur Vihar Phase 3",
+  "Pandav Nagar",
+
+  // Central Delhi
+  "Central Delhi",
+  "Karol Bagh",
+  "Rajendra Place",
+  "Connaught Place",
+  "CP",
+  "Jhandewalan",
+  "Patel Nagar",
+
+  // Rohini
+  "Rohini",
+  "Rohini Sector 1", "Rohini Sector 3", "Rohini Sector 5",
+  "Rohini Sector 7", "Rohini Sector 8", "Rohini Sector 9",
+  "Rohini Sector 10", "Rohini Sector 11", "Rohini Sector 13",
+  "Rohini Sector 16", "Rohini Sector 18",
+  "Prashant Vihar",
+  "Rithala",
+
+  // Dwarka
+  "Dwarka",
+  "Dwarka Sector 1", "Dwarka Sector 6", "Dwarka Sector 7",
+  "Dwarka Sector 8", "Dwarka Sector 10", "Dwarka Sector 11",
+  "Dwarka Sector 12", "Dwarka Sector 13", "Dwarka Sector 14",
+  "Dwarka Sector 19", "Dwarka Sector 21", "Dwarka Sector 22",
+  "Dwarka Sector 23",
+  "Palam",
+  "Dwarka Mor",
+
+  // North-West Delhi
+  "North-West Delhi",
+  "Pitampura",
+  "Shalimar Bagh",
+  "Ashok Vihar",
+  "Netaji Subhash Place",
+
+  // South-West Delhi
+  "South-West Delhi",
+
+  // Metro Stations
+  "Rajiv Chowk",
+  "Hauz Khas Metro",
+  "Saket Metro",
+  "Malviya Nagar Metro",
+  "Laxmi Nagar Metro",
+  "Karol Bagh Metro",
+  "Dwarka Sector 21 Metro",
+  "Rohini West Metro",
+  "Pitampura Metro",
+  "Janakpuri West Metro",
+];
+
 
 export const INTENTS = {
   // 👨‍👩‍👧 Parents / Students – Need a Tutor
