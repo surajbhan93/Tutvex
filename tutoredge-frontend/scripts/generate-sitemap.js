@@ -21,6 +21,7 @@ import {
   ALLAHABAD_LOCATIONS,
   LUCKNOW_LOCATIONS,
   KANPUR_LOCATIONS,
+  GURUGRAM_LOCATIONS,
   INTENTS as OLD_INTENTS,
 } from "../src/components/seo/seo.config.node.js";
 
@@ -104,7 +105,33 @@ KANPUR_LOCATIONS.forEach((loc) => {
 });
 
 /* ===============================
-   🔥 3. SEO INDIA (NEW)
+   🔥 4. GURUGRAM SEO PAGES (NEW)
+   Main city page + 10 area pages
+================================ */
+
+// Main Gurugram city page
+urls.push(`${BASE_URL}/gurugram`);
+
+// Gurugram area pages
+const GURUGRAM_AREAS = [
+  'dlf-phase',
+  'golf-course-road',
+  'mg-road',
+  'sushant-lok',
+  'sohna-road',
+  'palam-vihar',
+  'old-gurgaon',
+  'dwarka-expressway',
+  'new-gurgaon',
+  'manesar'
+];
+
+GURUGRAM_AREAS.forEach((area) => {
+  urls.push(`${BASE_URL}/gurugram/${area}`);
+});
+
+/* ===============================
+   🔥 5. SEO INDIA (NEW)
    /india/{city}/{location}/{intent}
 ================================ */
 

@@ -282,6 +282,68 @@ export const ALLAHABAD_LOCATIONS = [
   "Boys High School Area",
 ];
 
+export const GURUGRAM_LOCATIONS = [
+  // Main City
+  "Gurugram",
+  "Gurgaon",
+
+  // DLF Phase Areas
+  "DLF Phase 1",
+  "DLF Phase 2",
+  "DLF Phase 3",
+  "DLF Phase 4",
+  "DLF Phase 5",
+  "DLF City",
+
+  // Golf Course Road
+  "Golf Course Road",
+  "Golf Course Extension Road",
+
+  // MG Road Area
+  "MG Road",
+  "Sikanderpur",
+
+  // Sushant Lok & South City
+  "Sushant Lok Phase I",
+  "Sushant Lok Phase II",
+  "South City I",
+  "South City II",
+
+  // Sohna Road
+  "Sohna Road",
+
+  // Palam Vihar
+  "Palam Vihar",
+
+  // Old Gurgaon
+  "Old Gurgaon",
+  "Sector 14",
+  "Sector 15",
+  "Sector 16",
+  "Sector 17",
+
+  // Dwarka Expressway
+  "Dwarka Expressway",
+
+  // New Gurgaon
+  "New Gurgaon",
+
+  // Manesar
+  "Manesar",
+  "IMT Manesar",
+
+  // Popular Sectors
+  "Sector 21", "Sector 22", "Sector 23",
+  "Sector 24", "Sector 25", "Sector 26",
+  "Sector 40", "Sector 41", "Sector 42", "Sector 43",
+  "Sector 47", "Sector 48", "Sector 49", "Sector 50",
+  "Sector 53", "Sector 54", "Sector 55", "Sector 56",
+  "Sector 67", "Sector 68", "Sector 69", "Sector 70",
+  "Sector 81", "Sector 82", "Sector 83", "Sector 84", "Sector 85",
+  "Sector 90", "Sector 91", "Sector 92", "Sector 93",
+  "Sector 95", "Sector 102", "Sector 103",
+];
+
 
 export const INTENTS = {
   // 👨‍👩‍👧 Parents / Students – Need a Tutor

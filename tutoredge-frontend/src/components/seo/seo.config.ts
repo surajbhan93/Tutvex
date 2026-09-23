@@ -282,6 +282,166 @@ export const ALLAHABAD_LOCATIONS = [
   "Boys High School Area",
 ];
 
+export const GURUGRAM_LOCATIONS = [
+  // Main City
+  "Gurugram",
+  "Gurgaon",
+
+  // DLF Phase Areas
+  "DLF Phase 1",
+  "DLF Phase 2",
+  "DLF Phase 3",
+  "DLF Phase 4",
+  "DLF Phase 5",
+  "DLF City",
+  "DLF Qe",
+
+  // Golf Course Road
+  "Golf Course Road",
+  "Golf Course Extension Road",
+  "Nirvana Country",
+
+  // MG Road Area
+  "MG Road",
+  "Mehrauli-Gurgaon Road",
+  "Sikanderpur",
+  "Sikanderpur Metro",
+
+  // Sushant Lok & South City
+  "Sushant Lok Phase I",
+  "Sushant Lok Phase II",
+  "Sushant Lok Phase III",
+  "South City I",
+  "South City II",
+
+  // Sohna Road
+  "Sohna Road",
+  "Badshahpur",
+
+  // Palam Vihar
+  "Palam Vihar",
+  "Carterpuri",
+
+  // Old Gurgaon
+  "Old Gurgaon",
+  "Jyoti Park",
+  "Shivaji Nagar",
+
+  // Dwarka Expressway
+  "Dwarka Expressway",
+  "Kherki Daula",
+
+  // New Gurgaon
+  "New Gurgaon",
+
+  // Manesar
+  "Manesar",
+  "IMT Manesar",
+
+  // Sectors - DLF Phase Area
+  "Sector 24",
+  "Sector 25",
+  "Sector 26",
+  "Sector 27",
+  "Sector 28",
+
+  // Sectors - Sushant Lok Area
+  "Sector 40",
+  "Sector 41",
+  "Sector 43",
+
+  // Sectors - Golf Course Road
+  "Sector 42",
+  "Sector 53",
+  "Sector 54",
+  "Sector 55",
+  "Sector 56",
+
+  // Sectors - Sohna Road
+  "Sector 47",
+  "Sector 48",
+  "Sector 49",
+  "Sector 50",
+  "Sector 51",
+  "Sector 67",
+  "Sector 68",
+  "Sector 69",
+  "Sector 70",
+  "Sector 71",
+
+  // Sectors - Palam Vihar
+  "Sector 21",
+  "Sector 22",
+  "Sector 23",
+  "Sector 23A",
+
+  // Sectors - Old Gurgaon
+  "Sector 14",
+  "Sector 15",
+  "Sector 15 Part 1",
+  "Sector 15 Part 2",
+  "Sector 16",
+  "Sector 17",
+  "Sector 18",
+
+  // Sectors - Dwarka Expressway
+  "Sector 81",
+  "Sector 82",
+  "Sector 83",
+  "Sector 84",
+  "Sector 85",
+  "Sector 86",
+  "Sector 88",
+  "Sector 89",
+
+  // Sectors - New Gurgaon
+  "Sector 90",
+  "Sector 91",
+  "Sector 92",
+  "Sector 93",
+  "Sector 95",
+  "Sector 95A",
+  "Sector 95B",
+  "Sector 102",
+  "Sector 103",
+  "Sector 104",
+  "Sector 105",
+
+  // Manesar Sectors
+  "Sector 1 Manesar",
+  "Sector 2 Manesar",
+  "Sector 3 Manesar",
+  "Sector 4 Manesar",
+  "Sector 5 Manesar",
+  "Sector 6 Manesar",
+  "Sector 7 Manesar",
+  "Sector 8 Manesar",
+  "Sector 9 Manesar",
+
+  // Premium Residential Societies
+  "DLF Park Place",
+  "DLF Belaire",
+  "DLF Aralias",
+  "DLF Camellias",
+  "Magnolias",
+  "IREO Victory Valley",
+  "IREO The Grand Arch",
+  "Central Park Resorts",
+  "Nirvana Country",
+  "Experion The Heartsong",
+  "Godrej Summit",
+  "Sobha City",
+
+  // Corporate Areas
+  "Cyber City",
+  "Cyber Hub",
+  "Udyog Vihar",
+
+  // Landmarks
+  "Ambience Mall",
+  "Kingdom of Dreams",
+];
+
 
 export const INTENTS = {
   // 👨‍👩‍👧 Parents / Students – Need a Tutor

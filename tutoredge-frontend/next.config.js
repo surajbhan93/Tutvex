@@ -35,7 +35,7 @@ module.exports = withBundleAnalyzer({
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,
-    domains: ["res.cloudinary.com", "ui-avatars.com", "images.unsplash.com"],
+    domains: ["res.cloudinary.com", "ui-avatars.com", "images.unsplash.com", "tutvex.com"],
     remotePatterns: [
       {
         protocol: "http",
@@ -54,6 +54,16 @@ module.exports = withBundleAnalyzer({
         hostname: "localhost",
         port: "3001",
         pathname: "/api/v1/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "tutvex.com",
+        pathname: "/api/v1/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "tutvex.com",
+        pathname: "/uploads/**",
       },
       {
         protocol: "https",
