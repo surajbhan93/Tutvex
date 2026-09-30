@@ -721,8 +721,8 @@ export default function CreateLeadPage() {
                   required
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
                 >
-                  <option value="active">✅ Active (Tutors can unlock)</option>
-                  <option value="already_filled">✓ Already Filled (Display only)</option>
+                  <option value="active">Active (Tutors can unlock)</option>
+                  <option value="already_filled">Already Filled (Display only)</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
                   {formData.availability === "active" 

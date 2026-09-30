@@ -154,44 +154,38 @@ fastify.get(
   "/auth/tutor-applications",
   {
     preHandler: [authMiddleware, roleMiddleware(["admin"])],
+  },
+  authController.getTutorApplications.bind(authController)
+);
+
+// 🔹 PATCH: Approve/Reject Tutor Application (Frontend compatible)
+fastify.patch(
+  "/auth/tutor-applications/:id",
+  {
+    preHandler: [authMiddleware, roleMiddleware(["admin"])],
     schema: {
       tags: ["Tutor"],
-      summary: "Fetch recent tutor applications",
-      querystring: {
+      summary: "Update tutor application status (approve/reject)",
+      params: {
         type: "object",
+        required: ["id"],
         properties: {
-          limit: { type: "integer", default: 5, minimum: 1 },
-          status: {
-            type: "string",
-            enum: ["pending", "approved", "rejected"]
-          }
+          id: { type: "string" }
         }
       },
-      response: {
-        200: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              _id: { type: "string" },   // ⭐ MUST
-              id: { type: "string" },    // ⭐ optional (safe)
-              name: { type: "string" },
-              email: { type: "string" },
-              phone: { type: "string" },
-              city: { type: "string" },
-              state: { type: "string" },
-              status: {
-                type: "string",
-                enum: ["pending", "approved", "rejected"]
-              },
-              appliedDate: { type: "string", format: "date-time" }
-            }
+      body: {
+        type: "object",
+        required: ["status"],
+        properties: {
+          status: {
+            type: "string",
+            enum: ["approved", "rejected", "pending"]
           }
         }
       }
     }
   },
-  authController.getTutorApplications.bind(authController)
+  authController.updateTutorStatus.bind(authController)
 );
 
   // Parent Request (Authenticated)

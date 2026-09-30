@@ -721,6 +721,20 @@ async createLeadByAdmin(
       status: "pending",
     });
 
+    // 🔥 Broadcast push notification to registered devices
+    try {
+      const fcmService = require("../services/fcm.service").default || new (require("../services/fcm.service").FCMService)();
+      await fcmService.sendNewLeadNotification([], {
+        leadId: (lead._id as any).toString(),
+        subject: subject || "Tutoring Need",
+        studentClass: classGrade || "All Classes",
+        location: location,
+      });
+      console.log(`[FCM] Admin lead push notification broadcasted`);
+    } catch (fcmErr) {
+      console.error("[FCM] Error broadcasting admin lead notification:", fcmErr);
+    }
+
     return reply.send({
       success: true,
       message: "Lead created successfully",

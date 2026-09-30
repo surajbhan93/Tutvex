@@ -2,6 +2,7 @@ import { GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -28,6 +29,9 @@ import {
 import NavBar from "@/components/navbar/NavBar";
 import Footer from "@/components/landing/Footer";
 import { GURUGRAM_AREAS } from "@/lib/gurugram/gurugramAreas";
+
+// Dynamic import for 3D background
+const ThreeBackground = dynamic(() => import('@/components/ThreeBackground'), { ssr: false });
 
 /* =========================
    CONSTANTS
@@ -166,21 +170,17 @@ export default function GurugramCityPage() {
         <NavBar />
 
         {/* ========== HERO SECTION ========== */}
-        <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-          {/* Background Image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 blur-sm"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1920&q=80')",
-            }}
-          />
+        <section className="relative overflow-hidden min-h-[90vh] flex items-center bg-black">
+          {/* 3D Animated Background - Only in Hero */}
+          <div className="absolute inset-0 z-0">
+            <ThreeBackground />
+          </div>
           
-          {/* Overlays */}
-          <div className="absolute inset-0 bg-black/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          {/* Dark Overlays */}
+          <div className="absolute inset-0 bg-black/50 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent z-10" />
 
-          <div className="relative w-full max-w-7xl mx-auto px-4 py-16 lg:py-20">
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 py-16 lg:py-20">
             {/* Google Rating Badge */}
             <motion.a
               href={GOOGLE_BUSINESS_LINK}
@@ -603,6 +603,7 @@ export default function GurugramCityPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
               {areaKeys.map((areaKey) => {
                 const area = GURUGRAM_AREAS[areaKey];
+                if (!area) return null;
                 return (
                   <Link
                     key={area.slug}

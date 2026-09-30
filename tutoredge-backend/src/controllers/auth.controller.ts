@@ -82,7 +82,7 @@ export class AuthController {
       const { status, limit } = req.query as { status?: string; limit?: string };
       const limitValue = limit ? parseInt(limit, 10) : 5;
 
-      const validStatuses = ["pending", "approved", "rejected"];
+      const validStatuses = ["pending", "approved", "rejected", "all"];
       if (status && !validStatuses.includes(status)) {
         return reply.status(400).send({ error: "Invalid status value" });
       }

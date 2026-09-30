@@ -3,10 +3,10 @@ import api from "@/lib/apiClient";
 
 const UploadDocuments = () => {
   const [files, setFiles] = useState({
-    identityProof: null,
-    educationProof: null,
-    annexureB: null,
-    bankDetails: null,
+    twelfthCertificate: null,
+    aadharCard: null,
+    graduationCertificate: null,
+    tenthCertificate: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -22,61 +22,30 @@ const UploadDocuments = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 validation
-    if (
-      !files.identityProof ||
-      !files.educationProof ||
-      !files.annexureB ||
-      !files.bankDetails
-    ) {
-      setMessage("❌ Please upload all documents");
-      return;
-    }
-
     const formData = new FormData();
-    formData.append("identityProof", files.identityProof);
-    formData.append("educationProof", files.educationProof);
-    formData.append("annexureB", files.annexureB);
-    formData.append("bankDetails", files.bankDetails);
+    if (files.twelfthCertificate) formData.append("twelfthCertificate", files.twelfthCertificate);
+    if (files.aadharCard) formData.append("aadharCard", files.aadharCard);
+    if (files.graduationCertificate) formData.append("graduationCertificate", files.graduationCertificate);
+    if (files.tenthCertificate) formData.append("tenthCertificate", files.tenthCertificate);
 
     try {
       setLoading(true);
       setMessage("");
 
-      // 🔥 apiClient use (NO manual headers needed)
-      // const res = await api.post(
-      //   "/tutor/upload-documents",
-      //   formData,
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   }
-      // );
-      const res = await api.post(
-  "/tutor/upload-documents",
-  formData
-);
-
-console.log([...formData.entries()]);
-      console.log("RESPONSE 👉", res.data);
+      const res = await api.post("/tutor/upload-documents", formData);
 
       if (res.data.success) {
         setMessage("✅ Documents uploaded successfully");
       } else {
         setMessage("❌ Upload failed");
       }
-
     } catch (err) {
       console.error("ERROR 👉", err);
-
-      // 🔥 better error handling
       if (err.response) {
         setMessage(`❌ ${err.response.data.message}`);
       } else {
         setMessage("❌ Network error");
       }
-
     } finally {
       setLoading(false);
     }
@@ -84,21 +53,20 @@ console.log([...formData.entries()]);
 
   return (
     <div style={styles.container}>
-      <h2>Upload Documents</h2>
+      <h2>Upload Verification Documents</h2>
 
       <form onSubmit={handleSubmit} style={styles.form}>
-        
-        <label>Identity Proof</label>
-        <input type="file" name="identityProof" onChange={handleChange} />
+        <label>12th Certificate / Marksheet</label>
+        <input type="file" name="twelfthCertificate" onChange={handleChange} />
 
-        <label>Education Proof</label>
-        <input type="file" name="educationProof" onChange={handleChange} />
+        <label>Aadhar Card (Identity Proof)</label>
+        <input type="file" name="aadharCard" onChange={handleChange} />
 
-        <label>Annexure B (Signed)</label>
-        <input type="file" name="annexureB" onChange={handleChange} />
+        <label>Graduation Certificate / Degree</label>
+        <input type="file" name="graduationCertificate" onChange={handleChange} />
 
-        <label>Bank Details</label>
-        <input type="file" name="bankDetails" onChange={handleChange} />
+        <label>10th Certificate / Marksheet</label>
+        <input type="file" name="tenthCertificate" onChange={handleChange} />
 
         <button type="submit" disabled={loading} style={styles.button}>
           {loading ? "Uploading..." : "Upload Documents"}

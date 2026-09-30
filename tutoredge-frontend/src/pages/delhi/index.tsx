@@ -172,17 +172,8 @@ export default function DelhiCityPage() {
         />
 
         {/* Structured Data */}
-        <FAQSchema faqs={FAQS} />
-        <LocalBusinessSchema
-          name="Tutvex - Home Tutors in Delhi"
-          description="Find verified home tutors in Delhi for Class 1-12, CBSE, ICSE, JEE, NEET and competitive exams"
-          telephone={PHONE_NUMBER}
-          address={{
-            addressLocality: "Delhi",
-            addressRegion: "Delhi",
-            addressCountry: "IN",
-          }}
-        />
+        <FAQSchema cityName="Delhi" location="Delhi" intent="Home Tutors in Delhi" />
+        <LocalBusinessSchema city="delhi" cityName="Delhi" location="Delhi" />
       </Head>
 
       <div className="min-h-screen bg-white">
@@ -617,6 +608,7 @@ export default function DelhiCityPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {areaKeys.map((key) => {
                 const area = DELHI_AREAS[key];
+                if (!area) return null;
                 return (
                   <Link
                     key={key}

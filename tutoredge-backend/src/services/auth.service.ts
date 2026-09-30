@@ -228,8 +228,8 @@ async getTutorById(id: string) {
       "fullName email phone role status phone_verified " +
       "qualification college yearsOfExperience " +
       "subjects languages classesTaught " +
-      "price rating testimonial createdAt " +
-      "location"
+      "price rating testimonial createdAt profileImage " +
+      "location documents board10th board12th isDocumentsSubmitted isDocumentsVerified"
     )
     .lean();
 
@@ -239,39 +239,6 @@ async getTutorById(id: string) {
 
   return tutor;
 }
-
-  // async getTutorApplications(status?: string, limit: number = 5) {
-  //   const validStatuses = ["pending", "approved", "rejected"];
-  //   if (status && !validStatuses.includes(status)) {
-  //     throw new Error("Invalid status");
-  //   }
-
-  //   const limitValue = Number(limit) || 5;
-  //   if (!Number.isInteger(limitValue) || limitValue <= 0) {
-  //     throw new Error("Invalid limit");
-  //   }
-
-  //   const query: any = { role: "tutor" };
-  //   if (status) query.status = status;
-
-  //   const tutors = await User.find(query)
-  //     .sort({ createdAt: -1 }) // latest first
-  //     .limit(limitValue)
-  //     .select("fullName email status createdAt")
-  //     .lean();
-
-  //   return tutors.map((t: any) => ({
-  //    _id: t._id.toString(), // Explicitly add this
-  // id: t._id.toString(),             // ⭐ VERY IMPORTANT
-  //     name: t.fullName,
-  //     email: t.email,
-  //     status: t.status,
-  //     appliedDate:
-  //       t.createdAt instanceof Date
-  //         ? t.createdAt.toISOString()
-  //         : new Date(t.createdAt).toISOString()
-  //   }));
-  // }
 
   async createParentRequest(parentId: string, data: any) {
     const { academicNeeds, scheduling, location, urgency } = data;
@@ -297,47 +264,49 @@ async getTutorById(id: string) {
     return request;
   }
 
-async getTutorApplications(status?: string, limit: number = 5) {
-  const validStatuses = ["pending", "approved", "rejected"];
+async getTutorApplications(status?: string, limit: number = 50) {
+  const validStatuses = ["pending", "approved", "rejected", "all"];
   if (status && !validStatuses.includes(status)) {
     throw new Error("Invalid status");
   }
 
-  const limitValue = Number(limit) || 5;
-  if (!Number.isInteger(limitValue) || limitValue <= 0) {
-    throw new Error("Invalid limit");
-  }
+  const limitValue = Number(limit) || 200;
 
-  // ✅ FINAL QUERY
+  // ✅ Query all tutors regardless of phone_verified flag so no application is hidden
   const query: any = {
-    role: "tutor",
-    phone_verified: true   // ⭐ IMPORTANT ADDITION
+    role: "tutor"
   };
 
-  if (status) {
+  if (status && status !== "all") {
     query.status = status;
   }
 
   const tutors = await User.find(query)
     .sort({ createdAt: -1 })
     .limit(limitValue)
-    .select("fullName email phone status createdAt location profileImage") // ✅ Added profileImage
+    .select("fullName email phone status createdAt location profileImage documents board10th board12th qualification college yearsOfExperience subjects languages classesTaught")
     .lean();
 
   return tutors.map((t: any) => ({
     _id: t._id.toString(),
     id: t._id.toString(),
-    name: t.fullName,
-    email: t.email,
+    name: t.fullName || "Tutor Application",
+    email: t.email || "",
     phone: t.phone || t.mobileNumber || t.phoneNumber || "",
     city: t.location?.city || t.city || "",
     state: t.location?.state || t.state || "",
-    status: t.status,
-    profileImage: t.profileImage || "", // ✅ Added profileImage
+    status: t.status || "pending",
+    profileImage: t.profileImage || "",
+    documents: t.documents || {},
+    board10th: t.board10th || "",
+    board12th: t.board12th || "",
+    qualification: t.qualification || "",
+    college: t.college || "",
+    yearsOfExperience: t.yearsOfExperience || 0,
     appliedDate:
       t.createdAt instanceof Date
         ? t.createdAt.toISOString()
-        : new Date(t.createdAt).toISOString()
+        : new Date(t.createdAt || Date.now()).toISOString()
   }));
 }
 

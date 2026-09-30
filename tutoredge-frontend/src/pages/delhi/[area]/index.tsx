@@ -123,17 +123,8 @@ export default function DelhiAreaPage({ area }: Props) {
         <meta name="twitter:description" content={area.metaDescription} />
 
         {/* Structured Data */}
-        <FAQSchema faqs={area.faqs.map(f => ({ q: f.question, a: f.answer }))} />
-        <LocalBusinessSchema
-          name={`Tutvex - Home Tutors in ${area.name}, Delhi`}
-          description={area.metaDescription}
-          telephone={PHONE_NUMBER}
-          address={{
-            addressLocality: area.name,
-            addressRegion: "Delhi",
-            addressCountry: "IN",
-          }}
-        />
+        <FAQSchema cityName="Delhi" location={area.name} intent={`Home Tutors in ${area.name}`} />
+        <LocalBusinessSchema city="delhi" cityName="Delhi" location={area.name} />
       </Head>
 
       <div className="min-h-screen bg-white">
@@ -457,7 +448,7 @@ export default function DelhiAreaPage({ area }: Props) {
               <div className="flex flex-wrap gap-3 justify-center">
                 {area.nearbyAreas.map((nearbyArea) => {
                   const nearbySlug = Object.keys(DELHI_AREAS).find(
-                    (key) => DELHI_AREAS[key].name === nearbyArea
+                    (key) => DELHI_AREAS[key]?.name === nearbyArea
                   );
                   return nearbySlug ? (
                     <Link

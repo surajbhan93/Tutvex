@@ -6,10 +6,12 @@ import {
   ArrowLeft, User, Mail, Phone, MapPin, GraduationCap, BookOpen, 
   Languages, Award, DollarSign, Star, Clock, CheckCircle, XCircle,
   AlertCircle, Loader, Shield, Building, MapPinned, Calendar,
-  Briefcase, Target, MessageSquare, Hash
+  Briefcase, Target, MessageSquare, Hash, Eye
 } from 'lucide-react';
 import Link from "next/link";
 import Image from "next/image";
+import { resolveImage } from "@/lib/resolveImage";
+import { displayFormattedPhone } from "@/lib/phoneUtils";
 
 export default function TutorApplicationDetailPage() {
   const router = useRouter();
@@ -171,7 +173,7 @@ export default function TutorApplicationDetailPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone size={16} className="text-emerald-500" />
-                  <span>{tutor.phone}</span>
+                  <span>{displayFormattedPhone(tutor.phone)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <User size={16} className="text-purple-500" />
@@ -222,12 +224,149 @@ export default function TutorApplicationDetailPage() {
               <div className="bg-indigo-500 p-3 rounded-xl">
                 <GraduationCap className="text-white" size={24} />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Academic Info</h3>
+              <h3 className="text-xl font-bold text-slate-900">Academic Info &amp; Boards</h3>
             </div>
             <div className="space-y-3">
-              <InfoRow icon={Award} label="Qualification" value={tutor.qualification} />
-              <InfoRow icon={Building} label="College" value={tutor.college} />
-              <InfoRow icon={Briefcase} label="Experience" value={`${tutor.yearsOfExperience} years`} />
+              <InfoRow icon={Award} label="Qualification" value={tutor.qualification || "N/A"} />
+              <InfoRow icon={Building} label="College" value={tutor.college || "N/A"} />
+              <InfoRow icon={BookOpen} label="10th Class Board" value={tutor.board10th || "Not Specified"} />
+              <InfoRow icon={BookOpen} label="12th Class Board" value={tutor.board12th || "Not Specified"} />
+              <InfoRow icon={Briefcase} label="Experience" value={`${tutor.yearsOfExperience || 0} years`} />
+            </div>
+          </div>
+
+          {/* Submitted Verification Documents */}
+          <div className="bg-white rounded-xl border-2 border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow lg:col-span-2">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-purple-600 p-3 rounded-xl">
+                <Shield className="text-white" size={24} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Submitted Verification Documents</h3>
+                <p className="text-xs text-slate-500">12th Certificate, Aadhar Card, Graduation Degree &amp; Marksheets</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* 12th Certificate */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 text-center flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-700 mb-1">12th Certificate</p>
+                  {tutor.documents?.twelfthCertificate ? (
+                    <div className="my-2 h-28 rounded-lg overflow-hidden border border-slate-300 bg-white flex items-center justify-center">
+                      <img
+                        src={resolveImage(tutor.documents.twelfthCertificate)}
+                        alt="12th Certificate"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="my-2 h-28 rounded-lg border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-xs text-slate-400 font-medium">
+                      Not Uploaded
+                    </div>
+                  )}
+                </div>
+                {tutor.documents?.twelfthCertificate && (
+                  <a
+                    href={resolveImage(tutor.documents.twelfthCertificate)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 py-1.5 px-3 rounded-lg border border-indigo-200"
+                  >
+                    <Eye size={14} /> View Document
+                  </a>
+                )}
+              </div>
+
+              {/* Aadhar Card */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 text-center flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-700 mb-1">Aadhar Card</p>
+                  {(tutor.documents?.aadharCard || tutor.documents?.identityProof) ? (
+                    <div className="my-2 h-28 rounded-lg overflow-hidden border border-slate-300 bg-white flex items-center justify-center">
+                      <img
+                        src={resolveImage(tutor.documents?.aadharCard || tutor.documents?.identityProof)}
+                        alt="Aadhar Card"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="my-2 h-28 rounded-lg border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-xs text-slate-400 font-medium">
+                      Not Uploaded
+                    </div>
+                  )}
+                </div>
+                {(tutor.documents?.aadharCard || tutor.documents?.identityProof) && (
+                  <a
+                    href={resolveImage(tutor.documents?.aadharCard || tutor.documents?.identityProof)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-1 text-xs font-bold text-purple-600 hover:text-purple-800 bg-purple-50 py-1.5 px-3 rounded-lg border border-purple-200"
+                  >
+                    <Eye size={14} /> View Document
+                  </a>
+                )}
+              </div>
+
+              {/* Graduation Certificate */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 text-center flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-700 mb-1">Graduation Degree</p>
+                  {(tutor.documents?.graduationCertificate || tutor.documents?.educationProof) ? (
+                    <div className="my-2 h-28 rounded-lg overflow-hidden border border-slate-300 bg-white flex items-center justify-center">
+                      <img
+                        src={resolveImage(tutor.documents?.graduationCertificate || tutor.documents?.educationProof)}
+                        alt="Graduation Degree"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="my-2 h-28 rounded-lg border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-xs text-slate-400 font-medium">
+                      Not Uploaded
+                    </div>
+                  )}
+                </div>
+                {(tutor.documents?.graduationCertificate || tutor.documents?.educationProof) && (
+                  <a
+                    href={resolveImage(tutor.documents?.graduationCertificate || tutor.documents?.educationProof)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-1 text-xs font-bold text-teal-600 hover:text-teal-800 bg-teal-50 py-1.5 px-3 rounded-lg border border-teal-200"
+                  >
+                    <Eye size={14} /> View Document
+                  </a>
+                )}
+              </div>
+
+              {/* 10th Certificate */}
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 text-center flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-bold text-slate-700 mb-1">10th Certificate</p>
+                  {tutor.documents?.tenthCertificate ? (
+                    <div className="my-2 h-28 rounded-lg overflow-hidden border border-slate-300 bg-white flex items-center justify-center">
+                      <img
+                        src={resolveImage(tutor.documents.tenthCertificate)}
+                        alt="10th Certificate"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="my-2 h-28 rounded-lg border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-xs text-slate-400 font-medium">
+                      Not Uploaded
+                    </div>
+                  )}
+                </div>
+                {tutor.documents?.tenthCertificate && (
+                  <a
+                    href={resolveImage(tutor.documents.tenthCertificate)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-800 bg-amber-50 py-1.5 px-3 rounded-lg border border-amber-200"
+                  >
+                    <Eye size={14} /> View Document
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 

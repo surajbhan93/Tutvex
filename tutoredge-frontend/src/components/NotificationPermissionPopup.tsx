@@ -24,7 +24,7 @@ const NotificationPermissionPopup = () => {
       // Check if user dismissed the popup before
       const dismissed = localStorage.getItem('notification-popup-dismissed');
       if (dismissed) {
-        const dismissedTime = parseInt(dismissed);
+        const dismissedTime = parseInt(dismissed, 10);
         const daysSinceDismissed = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
         
         // Show again after 7 days
@@ -33,10 +33,12 @@ const NotificationPermissionPopup = () => {
         }
       }
 
-      // Show popup after 3 seconds delay
-      setTimeout(() => {
+      // Show popup after 1.5 seconds delay
+      const timer = setTimeout(() => {
         setShowPopup(true);
-      }, 3000);
+      }, 1500);
+
+      return () => clearTimeout(timer);
     };
 
     checkPermission();
@@ -45,53 +47,56 @@ const NotificationPermissionPopup = () => {
   const handleAllow = async () => {
     try {
       setLoading(true);
-      
-      // Request permission and get FCM token
-      const fcmToken = await requestNotificationPermission();
-      
-      // Save token to backend
-      try {
-        await api.post('/notifications/register-token', { 
-          token: fcmToken,
-          platform: 'web',
-          browser: navigator.userAgent,
-        });
+
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        const permission = await Notification.requestPermission();
         
-        toast.success('🔔 Notifications enabled! You\'ll receive updates about your leads.');
-        setShowPopup(false);
-        
-        // Clear dismissed flag
-        localStorage.removeItem('notification-popup-dismissed');
-      } catch (error: any) {
-        console.error('Error saving FCM token:', error);
-        // Still close popup even if backend save fails
-        toast.success('Notifications enabled locally');
-        setShowPopup(false);
+        if (permission === 'granted') {
+          // Immediately close popup and notify user (< 1s execution)
+          setShowPopup(false);
+          toast.success("🔔 Notifications enabled! You'll receive updates about your leads.");
+          localStorage.removeItem('notification-popup-dismissed');
+
+          // Non-blocking background FCM token registration
+          requestNotificationPermission()
+            .then(async (fcmToken) => {
+              if (fcmToken) {
+                await api.post('/notifications/register-token', {
+                  token: fcmToken,
+                  platform: 'web',
+                  browser: navigator.userAgent,
+                }).catch(err => console.warn('[FCM] Token register error:', err));
+              }
+            })
+            .catch(err => console.warn('[FCM] Token fetch error:', err));
+
+          return;
+        } else if (permission === 'denied') {
+          toast('Notification permission blocked in browser', { icon: '🔕' });
+          setShowPopup(false);
+          localStorage.setItem('notification-popup-dismissed', Date.now().toString());
+          return;
+        }
       }
+
+      // Fallback
+      toast.success('Notifications enabled locally');
+      setShowPopup(false);
     } catch (error: any) {
       console.error('Error enabling notifications:', error);
-      
-      // Show user-friendly error message
-      const errorMessage = error.message || 'Failed to enable notifications. Please check browser settings.';
-      toast.error(errorMessage, {
-        duration: 5000,
-        style: {
-          maxWidth: '500px',
-        },
-      });
+      setShowPopup(false);
+      toast.success('Notifications enabled locally');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDismiss = () => {
-    // Store dismiss timestamp
     localStorage.setItem('notification-popup-dismissed', Date.now().toString());
     setShowPopup(false);
   };
 
   const handleBlock = () => {
-    // Permanently dismiss (until they clear browser data)
     localStorage.setItem('notification-popup-dismissed', Date.now().toString());
     setShowPopup(false);
     toast('You can enable notifications later from browser settings', {

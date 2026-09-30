@@ -8,6 +8,7 @@ import {
   DollarSign, Calendar, Clock, Eye
 } from "lucide-react";
 import MembershipBadge from "@/components/badges/MembershipBadge";
+import { displayFormattedPhone, formatPhoneInput } from "@/lib/phoneUtils";
 
 /* ================= TYPES ================= */
 
@@ -43,34 +44,40 @@ type TutorProfile = {
   membershipType?: string;
   currentPlanSlug?: string;
   revenueSharePercentage?: number;
+  board10th?: string;
+  board12th?: string;
   documents?: {
     identityProof?: string;
     educationProof?: string;
     annexureB?: string;
     bankDetails?: string;
+    twelfthCertificate?: string;
+    aadharCard?: string;
+    graduationCertificate?: string;
+    tenthCertificate?: string;
   };
   isDocumentsSubmitted?: boolean;
   isDocumentsVerified?: boolean;
 };
 
 type DocField =
-  | "identityProof"
-  | "educationProof"
-  | "annexureB"
-  | "bankDetails";
+  | "twelfthCertificate"
+  | "aadharCard"
+  | "graduationCertificate"
+  | "tenthCertificate";
 
-const DOC_LABELS = {
-  identityProof: "Identity Proof",
-  educationProof: "Education Certificate",
-  annexureB: "Annexure B Form",
-  bankDetails: "Bank Details"
+const DOC_LABELS: Record<DocField, string> = {
+  twelfthCertificate: "12th Certificate / Marksheet",
+  aadharCard: "Aadhar Card (Identity Proof)",
+  graduationCertificate: "Graduation Degree / Certificate",
+  tenthCertificate: "10th Certificate / Marksheet"
 };
 
-const DOC_DESCRIPTIONS = {
-  identityProof: "Aadhaar, PAN, Passport or Driving License",
-  educationProof: "Latest degree, marksheet or certificate",
-  annexureB: "Download, fill and upload signed form",
-  bankDetails: "Cancelled cheque or passbook front page"
+const DOC_DESCRIPTIONS: Record<DocField, string> = {
+  twelfthCertificate: "Upload 12th class passing certificate or marksheet",
+  aadharCard: "Upload front & back image or PDF of Aadhar card",
+  graduationCertificate: "Upload Bachelor's / Master's degree or marksheets",
+  tenthCertificate: "Upload 10th class passing certificate or marksheet"
 }; 
 /* ================= DOCUMENT CARD COMPONENT ================= */
 const DocumentCard = ({
@@ -78,71 +85,63 @@ const DocumentCard = ({
   docUrl,
   onUpload,
   uploading,
-  file
+  file,
+  inputId,
 }: {
   fieldName: DocField;
   docUrl?: string;
   onUpload: () => void;
   uploading: boolean;
   file: File | null;
+  inputId: string;
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   
   return (
-    <div className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-blue-400 hover:shadow-md">
-      {/* Document Icon & Title */}
-      <div className="mb-3 flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-600" />
-            <h3 className="font-semibold text-gray-800">
-              {DOC_LABELS[fieldName]}
-            </h3>
+    <div className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-blue-400 hover:shadow-md flex flex-col justify-between">
+      <div>
+        {/* Document Icon & Title */}
+        <div className="mb-3 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-800">
+                {DOC_LABELS[fieldName]}
+              </h3>
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              {DOC_DESCRIPTIONS[fieldName]}
+            </p>
           </div>
-          <p className="mt-1 text-xs text-gray-500">
-            {DOC_DESCRIPTIONS[fieldName]}
-          </p>
+          
+          {/* Status Badge */}
+          {docUrl && (
+            <span className="flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+              <CheckCircle className="h-3.5 w-3.5" />
+              Uploaded
+            </span>
+          )}
         </div>
-        
-        {/* Status Badge */}
-        {docUrl && (
-          <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-            <CheckCircle className="h-3 w-3" />
-            Uploaded
-          </span>
-        )}
+
       </div>
 
-      {/* Annexure B Download Link */}
-      {fieldName === "annexureB" && (
-        <a
-          href="https://drive.google.com/uc?export=download&id=1PplRgO45WcSHzEEgAuHaM36tNH08QRlH"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mb-3 flex items-center gap-2 text-sm text-blue-600 hover:underline"
-        >
-          <Upload className="h-4 w-4" />
-          Download Annexure B Template
-        </a>
-      )}
-
       {/* File Input & Upload Button */}
-      <div className="space-y-2">
+      <div className="space-y-2 mt-4">
         <div className="flex items-center gap-2">
-          <label className="flex-1 cursor-pointer">
-            <div className="flex items-center gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-3 text-sm transition-colors hover:border-blue-400 hover:bg-blue-50">
-              <Upload className="h-4 w-4 text-gray-400" />
-              <span className="text-gray-600">
-                {file ? file.name : "Choose PDF file..."}
+          <label htmlFor={inputId} className="flex-1 cursor-pointer">
+            <div className="flex items-center gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-3 text-xs transition-colors hover:border-blue-400 hover:bg-blue-50">
+              <Upload className="h-4 w-4 text-gray-400 shrink-0" />
+              <span className="text-gray-600 truncate">
+                {file ? file.name : "Choose PDF or image file..."}
               </span>
             </div>
-            {/* Hidden file input is handled by parent handleDocChange */}
           </label>
 
           <button
+            type="button"
             onClick={onUpload}
             disabled={uploading || !file}
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-700 hover:to-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-xs font-medium text-white shadow-sm transition-all hover:from-blue-700 hover:to-blue-800 disabled:cursor-not-allowed disabled:opacity-50 shrink-0"
           >
             {uploading ? (
               <>
@@ -161,8 +160,9 @@ const DocumentCard = ({
         {/* Preview Document Button */}
         {docUrl && (
           <button
+            type="button"
             onClick={() => setIsPreviewOpen(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100"
           >
             <Eye className="h-4 w-4" />
             View Uploaded Document
@@ -175,6 +175,7 @@ const DocumentCard = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="relative w-full max-w-4xl rounded-xl bg-white p-4">
             <button
+              type="button"
               onClick={() => setIsPreviewOpen(false)}
               className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
             >
@@ -301,6 +302,20 @@ const ProfilePreview = ({
             <div className="rounded-lg border border-gray-200 p-4">
               <p className="font-semibold text-gray-900">{profile.qualification}</p>
               <p className="text-gray-600">{profile.college}</p>
+              {(profile.board10th || profile.board12th) && (
+                <div className="mt-2 flex flex-wrap gap-2 border-t border-gray-100 pt-2 text-xs">
+                  {profile.board10th && (
+                    <span className="rounded bg-indigo-50 px-2.5 py-1 font-semibold text-indigo-700">
+                      10th Board: {profile.board10th}
+                    </span>
+                  )}
+                  {profile.board12th && (
+                    <span className="rounded bg-purple-50 px-2.5 py-1 font-semibold text-purple-700">
+                      12th Board: {profile.board12th}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -386,7 +401,7 @@ const ProfilePreview = ({
               {profile.phone && (
                 <p className="flex items-center gap-2 text-gray-700">
                   <Phone className="h-4 w-4 text-gray-500" />
-                  {profile.phone}
+                  {displayFormattedPhone(profile.phone)}
                 </p>
               )}
             </div>
@@ -422,10 +437,10 @@ const EditProfileTab = () => {
   const fileRef = useRef<HTMLInputElement>(null);
   
   const [docFiles, setDocFiles] = useState<Record<DocField, File | null>>({
-    identityProof: null,
-    educationProof: null,
-    annexureB: null,
-    bankDetails: null,
+    twelfthCertificate: null,
+    aadharCard: null,
+    graduationCertificate: null,
+    tenthCertificate: null,
   });
 
   const [uploadingDocs, setUploadingDocs] = useState(false);
@@ -465,6 +480,8 @@ const EditProfileTab = () => {
         classesTaught: formData.classesTaught,
         qualification: formData.qualification,
         college: formData.college,
+        board10th: formData.board10th,
+        board12th: formData.board12th,
         yearsOfExperience: formData.yearsOfExperience,
         price: formData.price,
         priceType: formData.priceType,
@@ -540,8 +557,8 @@ const EditProfileTab = () => {
         return;
       }
 
-      if (file.type !== "application/pdf") {
-        alert("❌ Only PDF files are allowed");
+      if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+        alert("❌ Only PDF and image files (JPG, PNG, WebP) are allowed");
         return;
       }
 
@@ -626,7 +643,7 @@ const EditProfileTab = () => {
             {formData.phone && (
               <p className="mt-1 flex items-center gap-2 text-blue-100">
                 <Phone className="h-4 w-4" />
-                {formData.phone}
+                {displayFormattedPhone(formData.phone)}
               </p>
             )}
             <button
@@ -663,6 +680,21 @@ const EditProfileTab = () => {
           Basic Information
         </h3>
         <div className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              placeholder="e.g. 9336289192 or +91 93362 89192"
+              value={formData.phone || ""}
+              onChange={e =>
+                setFormData({ ...formData, phone: formatPhoneInput(e.target.value) })
+              }
+            />
+          </div>
+
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Professional Headline
@@ -791,6 +823,48 @@ const EditProfileTab = () => {
                   setFormData({ ...formData, college: e.target.value })
                 }
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  10th Class Board
+                </label>
+                <select
+                  className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                  value={formData.board10th || ""}
+                  onChange={e =>
+                    setFormData({ ...formData, board10th: e.target.value })
+                  }
+                >
+                  <option value="">Select Board</option>
+                  <option value="CBSE">CBSE</option>
+                  <option value="ICSE">ICSE</option>
+                  <option value="UP Board">UP Board</option>
+                  <option value="State Board">State Board</option>
+                  <option value="Other Board">Other Board</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  12th Class Board
+                </label>
+                <select
+                  className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                  value={formData.board12th || ""}
+                  onChange={e =>
+                    setFormData({ ...formData, board12th: e.target.value })
+                  }
+                >
+                  <option value="">Select Board</option>
+                  <option value="CBSE">CBSE</option>
+                  <option value="ICSE">ICSE</option>
+                  <option value="UP Board">UP Board</option>
+                  <option value="State Board">State Board</option>
+                  <option value="Other Board">Other Board</option>
+                </select>
+              </div>
             </div>
 
             <div>
@@ -922,82 +996,78 @@ const EditProfileTab = () => {
   {/* Hidden file inputs for DocumentCard components */}
   <input
     type="file"
-    name="identityProof"
-    accept="application/pdf"
+    name="twelfthCertificate"
+    accept="application/pdf,image/*"
     className="hidden"
-    id="identityProof-input"
+    id="twelfthCertificate-input"
     onChange={handleDocChange}
   />
   <input
     type="file"
-    name="educationProof"
-    accept="application/pdf"
+    name="aadharCard"
+    accept="application/pdf,image/*"
     className="hidden"
-    id="educationProof-input"
+    id="aadharCard-input"
     onChange={handleDocChange}
   />
   <input
     type="file"
-    name="annexureB"
-    accept="application/pdf"
+    name="graduationCertificate"
+    accept="application/pdf,image/*"
     className="hidden"
-    id="annexureB-input"
+    id="graduationCertificate-input"
     onChange={handleDocChange}
   />
   <input
     type="file"
-    name="bankDetails"
-    accept="application/pdf"
+    name="tenthCertificate"
+    accept="application/pdf,image/*"
     className="hidden"
-    id="bankDetails-input"
+    id="tenthCertificate-input"
     onChange={handleDocChange}
   />
 
   {/* Document Cards Grid */}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {/* Identity Proof Card */}
-    <label htmlFor="identityProof-input" className="cursor-pointer">
-      <DocumentCard
-        fieldName="identityProof"
-        docUrl={formData.documents?.identityProof}
-        onUpload={() => uploadSingleDoc("identityProof")}
-        uploading={uploadingDocs}
-        file={docFiles.identityProof}
-      />
-    </label>
+    {/* 12th Certificate Card */}
+    <DocumentCard
+      fieldName="twelfthCertificate"
+      docUrl={formData.documents?.twelfthCertificate}
+      onUpload={() => uploadSingleDoc("twelfthCertificate")}
+      uploading={uploadingDocs}
+      file={docFiles.twelfthCertificate}
+      inputId="twelfthCertificate-input"
+    />
 
-    {/* Education Proof Card */}
-    <label htmlFor="educationProof-input" className="cursor-pointer">
-      <DocumentCard
-        fieldName="educationProof"
-        docUrl={formData.documents?.educationProof}
-        onUpload={() => uploadSingleDoc("educationProof")}
-        uploading={uploadingDocs}
-        file={docFiles.educationProof}
-      />
-    </label>
+    {/* Aadhar Card */}
+    <DocumentCard
+      fieldName="aadharCard"
+      docUrl={formData.documents?.aadharCard || formData.documents?.identityProof}
+      onUpload={() => uploadSingleDoc("aadharCard")}
+      uploading={uploadingDocs}
+      file={docFiles.aadharCard}
+      inputId="aadharCard-input"
+    />
 
-    {/* Annexure B Card */}
-    <label htmlFor="annexureB-input" className="cursor-pointer">
-      <DocumentCard
-        fieldName="annexureB"
-        docUrl={formData.documents?.annexureB}
-        onUpload={() => uploadSingleDoc("annexureB")}
-        uploading={uploadingDocs}
-        file={docFiles.annexureB}
-      />
-    </label>
+    {/* Graduation Certificate */}
+    <DocumentCard
+      fieldName="graduationCertificate"
+      docUrl={formData.documents?.graduationCertificate || formData.documents?.educationProof}
+      onUpload={() => uploadSingleDoc("graduationCertificate")}
+      uploading={uploadingDocs}
+      file={docFiles.graduationCertificate}
+      inputId="graduationCertificate-input"
+    />
 
-    {/* Bank Details Card */}
-    <label htmlFor="bankDetails-input" className="cursor-pointer">
-      <DocumentCard
-        fieldName="bankDetails"
-        docUrl={formData.documents?.bankDetails}
-        onUpload={() => uploadSingleDoc("bankDetails")}
-        uploading={uploadingDocs}
-        file={docFiles.bankDetails}
-      />
-    </label>
+    {/* 10th Certificate */}
+    <DocumentCard
+      fieldName="tenthCertificate"
+      docUrl={formData.documents?.tenthCertificate}
+      onUpload={() => uploadSingleDoc("tenthCertificate")}
+      uploading={uploadingDocs}
+      file={docFiles.tenthCertificate}
+      inputId="tenthCertificate-input"
+    />
   </div>
 
   {/* Document Upload Status Summary */}
@@ -1007,21 +1077,21 @@ const EditProfileTab = () => {
         <h3 className="font-semibold text-green-800">Upload Status</h3>
         <p className="text-sm text-green-600">
           {[
-            formData.documents?.identityProof,
-            formData.documents?.educationProof,
-            formData.documents?.annexureB,
-            formData.documents?.bankDetails,
+            formData.documents?.twelfthCertificate,
+            formData.documents?.aadharCard || formData.documents?.identityProof,
+            formData.documents?.graduationCertificate || formData.documents?.educationProof,
+            formData.documents?.tenthCertificate,
           ].filter(Boolean).length}{" "}
           of 4 documents uploaded
         </p>
       </div>
       <div className="text-3xl">
         {[
-          formData.documents?.identityProof,
-          formData.documents?.educationProof,
-          formData.documents?.annexureB,
-          formData.documents?.bankDetails,
-        ].filter(Boolean).length === 4 ? "✅" : "📤"}
+          formData.documents?.twelfthCertificate,
+          formData.documents?.aadharCard || formData.documents?.identityProof,
+          formData.documents?.graduationCertificate || formData.documents?.educationProof,
+          formData.documents?.tenthCertificate,
+        ].filter(Boolean).length >= 2 ? "✅" : "📤"}
       </div>
     </div>
   </div>

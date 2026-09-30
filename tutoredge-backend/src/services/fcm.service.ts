@@ -198,7 +198,30 @@ export class FCMService {
   }
 
   /**
-   * Send new lead notification to matching tutors
+   * Broadcast push notification to ALL active registered FCM tokens
+   */
+  async broadcastToAllActiveTokens(
+    payload: FCMNotificationPayload
+  ): Promise<{ success: boolean; sentCount: number; failedCount: number }> {
+    try {
+      const activeTokenDocs = await UserNotificationToken.find({ isActive: true }).select("token").lean();
+      const tokens = activeTokenDocs.map((t: any) => t.token);
+
+      if (tokens.length === 0) {
+        console.log("[FCM] No active tokens found in database to broadcast.");
+        return { success: true, sentCount: 0, failedCount: 0 };
+      }
+
+      console.log(`[FCM] Broadcasting push notification '${payload.title}' to ${tokens.length} active device tokens...`);
+      return await this.sendToTokens(tokens, payload);
+    } catch (error) {
+      console.error("[FCM] Error in broadcastToAllActiveTokens:", error);
+      return { success: false, sentCount: 0, failedCount: 0 };
+    }
+  }
+
+  /**
+   * Send new lead notification to matching tutors and all active devices
    */
   async sendNewLeadNotification(
     tutorIds: (string | Types.ObjectId)[],
@@ -213,10 +236,10 @@ export class FCMService {
       const locationStr = leadData.location ? ` in ${leadData.location}` : "";
 
       const payload: FCMNotificationPayload = {
-        title: "🔔 New Student Lead",
-        body: `${leadData.studentClass} ${leadData.subject} requirement matches your profile${locationStr}.`,
+        title: "🔔 New Student Lead Posted!",
+        body: `New ${leadData.studentClass || ''} ${leadData.subject || ''} lead available${locationStr}. Tap to view details!`,
         type: "NEW_LEAD",
-        url: `/tutor/leads/${leadData.leadId}`,
+        url: `/find-students`,
         leadId: leadData.leadId,
         metadata: {
           subject: leadData.subject,
@@ -224,10 +247,15 @@ export class FCMService {
         },
       };
 
-      const result = await this.sendToUsers(tutorIds, payload);
+      if (tutorIds && tutorIds.length > 0) {
+        await this.sendToUsers(tutorIds, payload);
+      }
+
+      // Always broadcast to all active tokens so every user gets instant notification
+      const broadcastResult = await this.broadcastToAllActiveTokens(payload);
 
       console.log(
-        `New lead notification sent to ${tutorIds.length} tutors: ${result.sentCount} delivered`
+        `[FCM] New lead notification broadcasted to active tokens: ${broadcastResult.sentCount} delivered`
       );
     } catch (error) {
       console.error("Error sending new lead notification:", error);

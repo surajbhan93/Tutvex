@@ -5,6 +5,7 @@ import apiClient from "@/lib/apiClient";
 import AdminDashboardLayout from "@/components/admin-dashboard/AdminDashboardLayout";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import { Search, Filter, UserCheck, Clock, CheckCircle, XCircle, Eye, Download, Mail, Phone, MapPin, AlertCircle, LayoutDashboard } from 'lucide-react';
+import { displayFormattedPhone } from "@/lib/phoneUtils";
 
 interface TutorApplication {
   _id: string;
@@ -66,7 +67,7 @@ export default function TutorApplicationsPage() {
       setError("");
 
       const res = await apiClient.get<TutorApplication[]>(
-        "/auth/tutor-applications?status=pending&limit=2000"
+        "/auth/tutor-applications?status=all&limit=2000"
       );
 
       const safeData = (res.data || []).filter((app) => app && app._id);
@@ -283,7 +284,7 @@ export default function TutorApplicationsPage() {
                               {app.phone && (
                                 <div className="flex items-center gap-1.5 text-slate-600 text-sm">
                                   <Phone size={14} className="text-emerald-500" />
-                                  <span>{app.phone}</span>
+                                  <span>{displayFormattedPhone(app.phone)}</span>
                                 </div>
                               )}
                               <div className="flex items-center gap-1.5 text-slate-600 text-sm">

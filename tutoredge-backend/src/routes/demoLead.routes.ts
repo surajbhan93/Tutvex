@@ -25,6 +25,14 @@ export default async function demoLeadRoutes(app: FastifyInstance) {
     controller.getAllDemoLeads.bind(controller)
   );
 
+  app.get(
+    "/admin/demo-requests",
+    {
+      preHandler: [authMiddleware, roleMiddleware(["admin"])],
+    },
+    controller.getAllDemoLeads.bind(controller)
+  );
+
   // 🔥 ADMIN: View lead stats & analytics
   app.get(
     "/admin/demo-leads/stats",

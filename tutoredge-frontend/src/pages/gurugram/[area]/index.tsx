@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -27,6 +28,9 @@ import {
 import NavBar from "@/components/navbar/NavBar";
 import Footer from "@/components/landing/Footer";
 import { GURUGRAM_AREAS, GurugramArea } from "@/lib/gurugram/gurugramAreas";
+
+// Dynamic import for 3D background
+const ThreeBackground = dynamic(() => import('@/components/ThreeBackground'), { ssr: false });
 
 /* =========================
    CONSTANTS
@@ -124,19 +128,17 @@ export default function GurugramAreaPage({ area }: Props) {
         <NavBar />
 
         {/* ========== HERO SECTION ========== */}
-        <section className="relative overflow-hidden min-h-[80vh] flex items-center">
-          {/* Background */}
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 blur-sm"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80')",
-            }}
-          />
-          <div className="absolute inset-0 bg-black/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <section className="relative overflow-hidden min-h-[80vh] flex items-center bg-black">
+          {/* 3D Animated Background - Only in Hero */}
+          <div className="absolute inset-0 z-0">
+            <ThreeBackground />
+          </div>
+          
+          {/* Dark Overlays */}
+          <div className="absolute inset-0 bg-black/50 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent z-10" />
 
-          <div className="relative w-full max-w-7xl mx-auto px-4 py-16">
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-4 py-16">
             <Breadcrumb area={area} />
 
             <div className="flex flex-col lg:flex-row lg:items-center gap-12">
@@ -403,7 +405,7 @@ export default function GurugramAreaPage({ area }: Props) {
               <div className="flex flex-wrap gap-3 justify-center">
                 {area.nearbyAreas.map((nearbyArea) => {
                   const nearbySlug = Object.keys(GURUGRAM_AREAS).find(
-                    (key) => GURUGRAM_AREAS[key].name === nearbyArea
+                    (key) => GURUGRAM_AREAS[key]?.name === nearbyArea
                   );
                   return nearbySlug ? (
                     <Link

@@ -15,7 +15,10 @@ import { otpRoutes } from "./routes/otp.routes";
 import userRoutes from "./routes/user.routes";
 import adminRoutes from "./routes/admin.routes";
 import contactRoutes from "./routes/contact.routes";
-const app = fastify({ logger: true });
+const app = fastify({ 
+  logger: true,
+  bodyLimit: 50 * 1024 * 1024 // 50MB body limit for base64 uploads & registrations
+});
 // import multipart from "@fastify/multipart";
 import teamRoutes from "./routes/team.routes";
 import testimonialRoutes from "./routes/testimonial.routes";

@@ -88,7 +88,14 @@ location?: TutorLocation;
 
 //  documents 
 
+board10th?: string;
+board12th?: string;
+
 documents?: {
+  twelfthCertificate?: string;
+  aadharCard?: string;
+  graduationCertificate?: string;
+  tenthCertificate?: string;
   identityProof?: string;
   educationProof?: string;
   annexureB?: string;
@@ -137,27 +144,23 @@ const UserSchema = new Schema<IUser>(
     college: String,
     certifications: { type: [String], default: [] },
 
+    // Educational Boards
+    board10th: { type: String, default: "" },
+    board12th: { type: String, default: "" },
+
     yearsOfExperience: Number,
     experienceDescription: String,
 
-    // status: {
-    //   type: String,
-    //   enum: ["pending", "phone_verified", "approved", "rejected"],
-    //   default: "pending"
-    // },
-
     status: {
-          type: String,
-          enum: ["pending", "approved", "rejected"],
-          default: "pending"
-        },
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending"
+    },
 
-        phone_verified: {
-          type: Boolean,
-          default: false
-        },
-  
-        
+    phone_verified: {
+      type: Boolean,
+      default: false
+    },
 
     price: { type: Number, default: 0 },
     priceType: {
@@ -179,16 +182,20 @@ const UserSchema = new Schema<IUser>(
     rating: { type: Number, default: 0 },
     testimonial: { type: String, default: "" },
 
-    // 🔥 DOCUMENTS (ADD THIS)
-documents: {
-  identityProof: { type: String, default: "" },
-  educationProof: { type: String, default: "" },
-  annexureB: { type: String, default: "" },
-  bankDetails: { type: String, default: "" },
-},
+    // 🔥 DOCUMENTS
+    documents: {
+      twelfthCertificate: { type: String, default: "" },
+      aadharCard: { type: String, default: "" },
+      graduationCertificate: { type: String, default: "" },
+      tenthCertificate: { type: String, default: "" },
+      identityProof: { type: String, default: "" },
+      educationProof: { type: String, default: "" },
+      annexureB: { type: String, default: "" },
+      bankDetails: { type: String, default: "" },
+    },
 
-isDocumentsSubmitted: { type: Boolean, default: false },
-isDocumentsVerified: { type: Boolean, default: false },
+    isDocumentsSubmitted: { type: Boolean, default: false },
+    isDocumentsVerified: { type: Boolean, default: false },
     // 
     location: {
   city: { type: String, trim: true },

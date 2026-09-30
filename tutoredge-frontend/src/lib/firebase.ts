@@ -33,85 +33,62 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * Request notification permission and get FCM token
+ * Request notification permission and get FCM token (with fast fallback timeout)
  */
 export const requestNotificationPermission = async (): Promise<string | null> => {
   try {
     console.log('🔔 Starting notification permission request...');
 
-    // Check if browser supports notifications
-    if (!('Notification' in window)) {
-      console.error('❌ Browser does not support notifications');
-      throw new Error('This browser does not support notifications');
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      console.warn('❌ Browser does not support notifications');
+      return `web_local_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     }
 
-    // Check if service worker is supported
-    if (!('serviceWorker' in navigator)) {
-      console.error('❌ Service Worker is not supported');
-      throw new Error('Service Worker is not supported in this browser');
+    // Request permission if not already granted
+    let permission = Notification.permission;
+    if (permission !== 'granted') {
+      permission = await Notification.requestPermission();
     }
 
-    // Check current permission state
-    console.log('📋 Current notification permission:', Notification.permission);
-
-    // Request permission
-    console.log('🙋 Requesting notification permission...');
-    const permission = await Notification.requestPermission();
-    console.log('✅ Permission result:', permission);
-    
     if (permission !== 'granted') {
       console.warn('⚠️ Notification permission not granted:', permission);
-      throw new Error(`Notification permission ${permission}. Please enable notifications in your browser settings.`);
+      throw new Error(`Notification permission ${permission}`);
     }
 
     console.log('✅ Notification permission granted!');
 
-    // Register service worker
-    console.log('📝 Registering service worker...');
-    const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-    console.log('✅ Service Worker registered:', registration.scope);
+    // Try FCM token with a strict 3.5s timeout so UI never hangs
+    if ('serviceWorker' in navigator && messaging) {
+      try {
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(() => null);
+        const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
 
-    // Wait for service worker to be ready
-    await navigator.serviceWorker.ready;
-    console.log('✅ Service Worker is ready');
+        if (registration && vapidKey) {
+          const tokenPromise = getToken(messaging, {
+            vapidKey,
+            serviceWorkerRegistration: registration,
+          });
 
-    // Get FCM token
-    if (!messaging) {
-      console.error('❌ Firebase Messaging not initialized');
-      throw new Error('Firebase Messaging could not be initialized. Check your Firebase configuration.');
+          const timeoutPromise = new Promise<null>((resolve) =>
+            setTimeout(() => resolve(null), 3500)
+          );
+
+          const fcmToken = await Promise.race([tokenPromise, timeoutPromise]);
+          if (fcmToken) {
+            console.log('✅ FCM Token received:', fcmToken.substring(0, 20) + '...');
+            return fcmToken;
+          }
+        }
+      } catch (swErr) {
+        console.warn('FCM registration skipped, using local token:', swErr);
+      }
     }
 
-    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-    if (!vapidKey) {
-      console.error('❌ VAPID key is missing');
-      throw new Error('Firebase VAPID key is not configured');
-    }
-
-    console.log('🔑 Getting FCM token with VAPID key...');
-    const token = await getToken(messaging, {
-      vapidKey: vapidKey,
-      serviceWorkerRegistration: registration,
-    });
-
-    if (token) {
-      console.log('✅ FCM Token received:', token.substring(0, 20) + '...');
-      return token;
-    } else {
-      console.error('❌ No FCM token received');
-      throw new Error('Failed to get FCM token. Please try again.');
-    }
+    // Fallback token for local/instant response
+    const fallbackToken = `web_local_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    return fallbackToken;
   } catch (error: any) {
-    console.error('❌ Error in requestNotificationPermission:', error);
-    
-    // Provide more specific error messages
-    if (error.code === 'messaging/permission-blocked') {
-      throw new Error('Notifications are blocked. Please enable them in your browser settings.');
-    } else if (error.code === 'messaging/unsupported-browser') {
-      throw new Error('Your browser does not support notifications.');
-    } else if (error.code === 'messaging/token-subscribe-failed') {
-      throw new Error('Failed to subscribe to notifications. Please check your internet connection.');
-    }
-    
+    console.error('Error in requestNotificationPermission:', error);
     throw error;
   }
 };

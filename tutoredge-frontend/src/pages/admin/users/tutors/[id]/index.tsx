@@ -226,13 +226,14 @@ export default function TutorViewPage() {
 
     <InfoRow
       icon={CheckCircle}
-      label="Identity Proof"
+      label="12th Certificate / Marksheet"
       value={
-        tutor.documents?.identityProof ? (
+        tutor.documents?.twelfthCertificate ? (
           <a
-            href={tutor.documents.identityProof}
+            href={resolveImage(tutor.documents.twelfthCertificate)}
             target="_blank"
-            className="text-blue-600 underline"
+            rel="noreferrer"
+            className="text-blue-600 font-semibold underline"
           >
             View Document
           </a>
@@ -242,13 +243,14 @@ export default function TutorViewPage() {
 
     <InfoRow
       icon={CheckCircle}
-      label="Education Proof"
+      label="Aadhar Card (Identity Proof)"
       value={
-        tutor.documents?.educationProof ? (
+        (tutor.documents?.aadharCard || tutor.documents?.identityProof) ? (
           <a
-            href={tutor.documents.educationProof}
+            href={resolveImage(tutor.documents?.aadharCard || tutor.documents?.identityProof)}
             target="_blank"
-            className="text-blue-600 underline"
+            rel="noreferrer"
+            className="text-blue-600 font-semibold underline"
           >
             View Document
           </a>
@@ -258,13 +260,14 @@ export default function TutorViewPage() {
 
     <InfoRow
       icon={CheckCircle}
-      label="Annexure B"
+      label="Graduation Degree / Certificate"
       value={
-        tutor.documents?.annexureB ? (
+        (tutor.documents?.graduationCertificate || tutor.documents?.educationProof) ? (
           <a
-            href={tutor.documents.annexureB}
+            href={resolveImage(tutor.documents?.graduationCertificate || tutor.documents?.educationProof)}
             target="_blank"
-            className="text-blue-600 underline"
+            rel="noreferrer"
+            className="text-blue-600 font-semibold underline"
           >
             View Document
           </a>
@@ -274,13 +277,14 @@ export default function TutorViewPage() {
 
     <InfoRow
       icon={CheckCircle}
-      label="Bank Details"
+      label="10th Certificate / Marksheet"
       value={
-        tutor.documents?.bankDetails ? (
+        tutor.documents?.tenthCertificate ? (
           <a
-            href={tutor.documents.bankDetails}
+            href={resolveImage(tutor.documents.tenthCertificate)}
             target="_blank"
-            className="text-blue-600 underline"
+            rel="noreferrer"
+            className="text-blue-600 font-semibold underline"
           >
             View Document
           </a>

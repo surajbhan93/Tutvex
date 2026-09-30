@@ -200,7 +200,7 @@ export const leadsController = {
 
       const lead = await leadService.createLead(parentId, leadData as Partial<IStudentLead>);
       
-      // Send push notification to parent confirming lead creation
+      // Send push notification to parent & broadcast to all registered devices
       try {
         await fcmService.sendLeadCreatedNotification(parentId, {
           leadId: (lead._id as any).toString(),
@@ -208,7 +208,15 @@ export const leadsController = {
           studentClass: lead.studentClass,
           studentName: lead.studentName,
         });
-        console.log(`[FCM] Lead created notification sent to parent ${parentId}`);
+
+        await fcmService.sendNewLeadNotification([], {
+          leadId: (lead._id as any).toString(),
+          subject: lead.subject,
+          studentClass: lead.studentClass,
+          location: lead.location?.city,
+        });
+
+        console.log(`[FCM] Lead created notification sent to parent ${parentId} & broadcasted to devices`);
       } catch (notificationError) {
         // Don't fail the request if notification fails
         console.error('[FCM] Failed to send lead created notification:', notificationError);

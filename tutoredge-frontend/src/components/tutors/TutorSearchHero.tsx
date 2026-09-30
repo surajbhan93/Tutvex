@@ -30,8 +30,8 @@ export const TutorSearchHero: React.FC<Props> = ({
   const [geoLocError, setGeoLocError] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Formatted Total Tutor Count (Formula: totalResults * 10 + 2)
-  const totalDisplay = (totalResults || 50) * 10 + 2;
+  // Real Total Tutor Count
+  const totalDisplay = totalResults > 0 ? totalResults : tutorsList.length;
 
   // Sync external filter q to input
   useEffect(() => {
@@ -139,7 +139,7 @@ export const TutorSearchHero: React.FC<Props> = ({
       {/* ── WebGPU Light Speed Shader Animation Background ── */}
       <TutorHeroAnimation />
 
-      <div className="relative z-30 max-w-4xl mx-auto">
+      <div className="relative z-30 max-w-5xl mx-auto">
         {/* ── Top Header Badge with Total Tutors Formula ── */}
         <div className="flex justify-center mb-4">
           <div className="inline-flex items-center gap-2 px-4.5 py-1.5 rounded-full text-xs font-extrabold tracking-widest uppercase bg-indigo-500/15 border border-indigo-500/35 text-indigo-300 shadow-xl backdrop-blur-md">

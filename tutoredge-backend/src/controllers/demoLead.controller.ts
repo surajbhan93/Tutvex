@@ -67,6 +67,19 @@ export class DemoLeadController {
         userAgent: request.headers["user-agent"],
       });
 
+      // Broadcast FCM push notification for new demo lead
+      try {
+        const fcmService = require("../services/fcm.service").default || new (require("../services/fcm.service").FCMService)();
+        await fcmService.broadcastToAllActiveTokens({
+          title: "🎯 New Demo Class Request!",
+          body: `Demo requested for ${studentClass} in ${city}${locality ? ' (' + locality + ')' : ''}.`,
+          type: "DEMO_REQUEST",
+          url: "/admin/demo-requests",
+        });
+      } catch (fcmErr) {
+        console.warn("[FCM] Demo request push notification warning:", fcmErr);
+      }
+
       return reply.status(201).send({
         success: true,
         message: `Free demo session requested successfully for ${city}!`,
