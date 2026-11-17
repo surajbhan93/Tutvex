@@ -571,6 +571,53 @@ export default function DoubtExpertUSAPage() {
           </div>
         </section>
 
+        {/* ── Before you apply ── */}
+        <section className="mx-auto max-w-4xl px-5 sm:px-8 pb-14">
+          <Reveal>
+            <div className="rounded-3xl border border-cyan-500/30 bg-[#0d1324] p-6 sm:p-10">
+              <p className="text-[11px] uppercase tracking-widest text-cyan-400 font-semibold">Important</p>
+              <h2 className="mt-1 text-2xl sm:text-3xl font-bold text-white tracking-tight">Before you apply</h2>
+              <p className="mt-2 text-sm text-gray-500">
+                Please contact the Tutvex team first. We will guide you so that your application and profile
+                verification go smoothly.
+              </p>
+
+              <ul className="mt-6 space-y-3">
+                {[
+                  "Contact the Tutvex team before you click Apply Now.",
+                  "Tell us your name, subject, qualification and teaching or work experience.",
+                  "Our team will check your profile and tell you which subject and role suits you best.",
+                  "Create a separate, professional email ID for this work (for example, starting with the first 3 letters of your name). Share only the email address with us, so the team can recognise your application and help with verification and other access.",
+                  "Keep your documents ready: degree or marksheet, ID proof and experience details.",
+                  "Then apply using the same email ID with email password that you shared with the team. (example : yourname@example.com, password: yourname123)",
+                
+                  "If you face any problem during onboarding, contact the team again for help.",
+                ].map((t, i) => (
+                  <li key={i} className="flex gap-3 text-sm sm:text-[15px] text-gray-300 leading-relaxed">
+                    <Check />
+                    {t}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="tel:+919305275932"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#1e2740] bg-[#151b2e] px-5 py-3 text-sm font-semibold text-gray-100 hover:border-cyan-500/60 transition-colors"
+                >
+                  📞 +91-9305275932
+                </a>
+                <a
+                  href="mailto:tutvex@gmail.com?subject=Doubt%20Expert%20-%20Before%20Applying"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#1e2740] bg-[#151b2e] px-5 py-3 text-sm font-semibold text-gray-100 hover:border-cyan-500/60 transition-colors"
+                >
+                  ✉️ tutvex@gmail.com
+                </a>
+              </div>
+            </div>
+          </Reveal>
+        </section>
+
         {/* ── CTA ── */}
         <section className="mx-auto max-w-5xl px-5 sm:px-8 pb-16">
           <Reveal from="zoom">
