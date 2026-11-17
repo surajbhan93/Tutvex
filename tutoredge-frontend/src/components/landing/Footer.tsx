@@ -21,6 +21,7 @@ const indiaCities = [
     city: "Allahabad",
     cityHref: "/allahabad",
     links: [
+      { label: "Doubt Expert Role ", href: "https://joinhandshake.com/move-program/referral?referralCode=322562&utm_source=referral" },
       { label: "Home Tutor", href: "/allahabad" },
       // { label: "Private Tutor", href: "/allahabad/allahabad/private-tutor" },
       { label: "Maths Tutor", href: "/allahabad/allahabad/maths-tutor" },
@@ -275,6 +276,17 @@ const internationalSections = [
       {
         label: "Tutor Job Australia",
         href: "/country/australia/tutor-job-australia",
+      },
+    ],
+  },
+
+  {
+    flag: "🇺🇸",
+    label: "USA",
+    links: [
+      {
+        label: "Doubt Expert Role",
+        href: "/usa/doubt-expert",
       },
     ],
   },
